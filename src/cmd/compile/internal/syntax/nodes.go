@@ -292,6 +292,12 @@ type (
 		Elem Expr
 		expr
 	}
+
+	// result Elem
+	ResultTyoe struct {
+		Elem Expr
+		expr
+	}
 )
 
 type expr struct{ node }

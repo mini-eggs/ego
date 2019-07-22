@@ -849,7 +849,7 @@ func (p *parser) operand(keep_parens bool) Expr {
 		}
 		return t
 
-	case _Lbrack, _Chan, _Map, _Struct, _Interface:
+	case _Lbrack, _Chan, _Result, _Map, _Struct, _Interface:
 		return p.type_() // othertype
 
 	default:
@@ -1156,6 +1156,13 @@ func (p *parser) typeOrNil() Expr {
 		t.Elem = p.chanElem()
 		return t
 
+	case _Result:
+		p.next()
+		t := new(ResultType)
+		t.pos = pos
+		t.Elem = p.resultElem()
+		return t
+
 	case _Map:
 		// _Map '[' ntype ']' ntype
 		p.next()
@@ -1208,6 +1215,21 @@ func (p *parser) chanElem() Expr {
 	if typ == nil {
 		typ = p.bad()
 		p.syntaxError("missing channel element type")
+		// assume element type is simply absent - don't advance
+	}
+
+	return typ
+}
+
+func (p *parser) resultElem() Expr {
+	if trace {
+		defer p.trace("resultElem")()
+	}
+
+	typ := p.typeOrNil()
+	if typ == nil {
+		typ = p.bad()
+		p.syntaxError("missing result element type")
 		// assume element type is simply absent - don't advance
 	}
 
@@ -1457,7 +1479,7 @@ func (p *parser) paramDeclOrNil() *Field {
 	case _Name:
 		f.Name = p.name()
 		switch p.tok {
-		case _Name, _Star, _Arrow, _Func, _Lbrack, _Chan, _Map, _Struct, _Interface, _Lparen:
+		case _Name, _Star, _Arrow, _Func, _Lbrack, _Chan, _Result, _Map, _Struct, _Interface, _Lparen:
 			// sym name_or_type
 			f.Type = p.type_()
 
@@ -1472,7 +1494,7 @@ func (p *parser) paramDeclOrNil() *Field {
 			f.Name = nil
 		}
 
-	case _Arrow, _Star, _Func, _Lbrack, _Chan, _Map, _Struct, _Interface, _Lparen:
+	case _Arrow, _Star, _Func, _Lbrack, _Chan, _Result, _Map, _Struct, _Interface, _Lparen:
 		// name_or_type
 		f.Type = p.type_()
 
@@ -2058,7 +2080,7 @@ func (p *parser) stmtOrNil() Stmt {
 		}
 
 	case _Literal, _Func, _Lparen, // operands
-		_Lbrack, _Struct, _Map, _Chan, _Interface, // composite types
+		_Lbrack, _Struct, _Map, _Chan, _Result, _Interface, // composite types
 		_Arrow: // receive operator
 		return p.simpleStmt(nil, 0)
 

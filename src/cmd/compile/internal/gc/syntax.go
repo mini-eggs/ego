@@ -659,6 +659,7 @@ const (
 	OLEN         // len(Left)
 	OMAKE        // make(List) (before type checking converts to one of the following)
 	OMAKECHAN    // make(Type, Left) (type is chan)
+	OMAKERESULT  // make(Type, Left) (type is result)
 	OMAKEMAP     // make(Type, Left) (type is map)
 	OMAKESLICE   // make(Type, Left, Right) (type is slice)
 	OMUL         // Left * Right
@@ -730,6 +731,7 @@ const (
 
 	// types
 	OTCHAN   // chan int
+	OTRESULT // result int
 	OTMAP    // map[string]int
 	OTSTRUCT // struct{}
 	OTINTER  // interface{}
