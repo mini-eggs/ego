@@ -697,7 +697,7 @@ func typePkg(t *types.Type) *types.Pkg {
 	tsym := t.Sym
 	if tsym == nil {
 		switch t.Etype {
-		case TARRAY, TSLICE, TPTR, TCHAN:
+		case TARRAY, TSLICE, TPTR, TCHAN, TMAYBE:
 			if t.Elem() != nil {
 				tsym = t.Elem().Sym
 			}
@@ -740,25 +740,26 @@ func dmethodptrOff(s *obj.LSym, ot int, x *obj.LSym) int {
 }
 
 var kinds = []int{
-	TINT:        objabi.KindInt,
-	TUINT:       objabi.KindUint,
-	TINT8:       objabi.KindInt8,
-	TUINT8:      objabi.KindUint8,
-	TINT16:      objabi.KindInt16,
-	TUINT16:     objabi.KindUint16,
-	TINT32:      objabi.KindInt32,
-	TUINT32:     objabi.KindUint32,
-	TINT64:      objabi.KindInt64,
-	TUINT64:     objabi.KindUint64,
-	TUINTPTR:    objabi.KindUintptr,
-	TFLOAT32:    objabi.KindFloat32,
-	TFLOAT64:    objabi.KindFloat64,
-	TBOOL:       objabi.KindBool,
-	TSTRING:     objabi.KindString,
-	TPTR:        objabi.KindPtr,
-	TSTRUCT:     objabi.KindStruct,
-	TINTER:      objabi.KindInterface,
-	TCHAN:       objabi.KindChan,
+	TINT:     objabi.KindInt,
+	TUINT:    objabi.KindUint,
+	TINT8:    objabi.KindInt8,
+	TUINT8:   objabi.KindUint8,
+	TINT16:   objabi.KindInt16,
+	TUINT16:  objabi.KindUint16,
+	TINT32:   objabi.KindInt32,
+	TUINT32:  objabi.KindUint32,
+	TINT64:   objabi.KindInt64,
+	TUINT64:  objabi.KindUint64,
+	TUINTPTR: objabi.KindUintptr,
+	TFLOAT32: objabi.KindFloat32,
+	TFLOAT64: objabi.KindFloat64,
+	TBOOL:    objabi.KindBool,
+	TSTRING:  objabi.KindString,
+	TPTR:     objabi.KindPtr,
+	TSTRUCT:  objabi.KindStruct,
+	TINTER:   objabi.KindInterface,
+	TCHAN:    objabi.KindChan,
+	// TMAYBE:      objabi.KindMaybe,
 	TMAP:        objabi.KindMap,
 	TARRAY:      objabi.KindArray,
 	TSLICE:      objabi.KindSlice,
@@ -780,6 +781,7 @@ func typeptrdata(t *types.Type) int64 {
 		TUNSAFEPTR,
 		TFUNC,
 		TCHAN,
+		TMAYBE,
 		TMAP:
 		return int64(Widthptr)
 
@@ -1074,7 +1076,8 @@ func isreflexive(t *types.Type) bool {
 		TPTR,
 		TUNSAFEPTR,
 		TSTRING,
-		TCHAN:
+		TCHAN,
+		TMAYBE:
 		return true
 
 	case TFLOAT32,
@@ -1106,7 +1109,7 @@ func isreflexive(t *types.Type) bool {
 func needkeyupdate(t *types.Type) bool {
 	switch t.Etype {
 	case TBOOL, TINT, TUINT, TINT8, TUINT8, TINT16, TUINT16, TINT32, TUINT32,
-		TINT64, TUINT64, TUINTPTR, TPTR, TUNSAFEPTR, TCHAN:
+		TINT64, TUINT64, TUINTPTR, TPTR, TUNSAFEPTR, TCHAN, TMAYBE:
 		return false
 
 	case TFLOAT32, TFLOAT64, TCOMPLEX64, TCOMPLEX128, // floats and complex can be +0/-0
@@ -1230,6 +1233,13 @@ func dtypesym(t *types.Type) *obj.LSym {
 		ot = dcommontype(lsym, t)
 		ot = dsymptr(lsym, ot, s1, 0)
 		ot = duintptr(lsym, ot, uint64(t.ChanDir()))
+		ot = dextratype(lsym, ot, t, 0)
+
+	case TMAYBE:
+		// ../../../../runtime/type.go:/maybeType
+		s1 := dtypesym(t.Elem())
+		ot = dcommontype(lsym, t)
+		ot = dsymptr(lsym, ot, s1, 0)
 		ot = dextratype(lsym, ot, t, 0)
 
 	case TFUNC:
@@ -1421,7 +1431,7 @@ func dtypesym(t *types.Type) *obj.LSym {
 		// functions must return the existing type structure rather
 		// than creating a new one.
 		switch t.Etype {
-		case TPTR, TARRAY, TCHAN, TFUNC, TMAP, TSLICE, TSTRUCT:
+		case TPTR, TARRAY, TCHAN, TMAYBE, TFUNC, TMAP, TSLICE, TSTRUCT:
 			keep = true
 		}
 	}

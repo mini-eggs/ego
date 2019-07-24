@@ -591,6 +591,8 @@ const (
 	OADDR         // &Left
 	OANDAND       // Left && Right
 	OAPPEND       // append(List); after walk, Left may contain elem type descriptor
+	OOK           // Type(Left); after walk, Left may contain elem type descriptor
+	OERR          // Type(Left); after walk, Left may contain elem type descriptor
 	OBYTES2STR    // Type(Left) (Type is string, Left is a []byte)
 	OBYTES2STRTMP // Type(Left) (Type is string, Left is a []byte, ephemeral)
 	ORUNES2STR    // Type(Left) (Type is string, Left is a []rune)
@@ -660,6 +662,7 @@ const (
 	OLEN         // len(Left)
 	OMAKE        // make(List) (before type checking converts to one of the following)
 	OMAKECHAN    // make(Type, Left) (type is chan)
+	OMAKEMAYBE   // make(Type, Left) (type is maybe)
 	OMAKEMAP     // make(Type, Left) (type is map)
 	OMAKESLICE   // make(Type, Left, Right) (type is slice)
 	OMUL         // Left * Right
@@ -732,6 +735,7 @@ const (
 
 	// types
 	OTCHAN   // chan int
+	OTMAYBE  // maybe int
 	OTMAP    // map[string]int
 	OTSTRUCT // struct{}
 	OTINTER  // interface{}

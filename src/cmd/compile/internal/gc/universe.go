@@ -49,6 +49,8 @@ var builtinFuncs = [...]struct {
 	op   Op
 }{
 	{"append", OAPPEND},
+	{"ok", OOK},
+	{"err", OERR},
 	{"cap", OCAP},
 	{"close", OCLOSE},
 	{"complex", OCOMPLEX},
@@ -252,6 +254,30 @@ func typeinit() {
 	okforlen[TMAP] = true
 	okforlen[TSLICE] = true
 	okforlen[TSTRING] = true
+
+	okforok[TPTR] = true
+	okforok[TUNSAFEPTR] = true
+	okforok[TINTER] = true
+	okforok[TCHAN] = true
+	okforok[TSTRING] = true
+	okforok[TBOOL] = true
+	okforok[TMAP] = true    // nil only; refined in typecheck
+	okforok[TFUNC] = true   // nil only; refined in typecheck
+	okforok[TSLICE] = true  // nil only; refined in typecheck
+	okforok[TARRAY] = true  // only if element type is comparable; refined in typecheck
+	okforok[TSTRUCT] = true // only if all struct fields are comparable; refined in typecheck
+
+	okforerr[TPTR] = true
+	okforerr[TUNSAFEPTR] = true
+	okforerr[TINTER] = true
+	okforerr[TCHAN] = true
+	okforerr[TSTRING] = true
+	okforerr[TBOOL] = true
+	okforerr[TMAP] = true    // nil only; refined in typecheck
+	okforerr[TFUNC] = true   // nil only; refined in typecheck
+	okforerr[TSLICE] = true  // nil only; refined in typecheck
+	okforerr[TARRAY] = true  // only if element type is comparable; refined in typecheck
+	okforerr[TSTRUCT] = true // only if all struct fields are comparable; refined in typecheck
 
 	okforeq[TPTR] = true
 	okforeq[TUNSAFEPTR] = true

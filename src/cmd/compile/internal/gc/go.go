@@ -166,6 +166,8 @@ var (
 	okforbool  [NTYPE]bool
 	okforcap   [NTYPE]bool
 	okforlen   [NTYPE]bool
+	okforok    [NTYPE]bool
+	okforerr   [NTYPE]bool
 	okforarith [NTYPE]bool
 	okforconst [NTYPE]bool
 )

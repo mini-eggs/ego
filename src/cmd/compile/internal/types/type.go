@@ -49,6 +49,7 @@ const (
 	TARRAY
 	TSTRUCT
 	TCHAN
+	TMAYBE
 	TMAP
 	TINTER
 	TFORW
@@ -64,6 +65,7 @@ const (
 	// pseudo-types for frame layout
 	TFUNCARGS
 	TCHANARGS
+	TMAYBEARGS
 
 	// pseudo-types for import/export
 	TDDDFIELD // wrapper: contained type is a ... field
@@ -135,6 +137,8 @@ type Type struct {
 	// TFUNCARGS: FuncArgs
 	// TCHANARGS: ChanArgs
 	// TCHAN: *Chan
+	// TMAYBEARGS: MaybeArgs
+	// TMAYBE: *Maybe
 	// TPTR: Ptr
 	// TARRAY: *Array
 	// TSLICE: Slice
@@ -318,6 +322,11 @@ type ChanArgs struct {
 	T *Type // reference to a chan type whose elements need a width check
 }
 
+// MaybeArgs contains Type fields specific to TMAYBEARGS types.
+type MaybeArgs struct {
+	T *Type // reference to a maybe type whose elements need a width check
+}
+
 // // FuncArgs contains Type fields specific to TFUNCARGS types.
 type FuncArgs struct {
 	T *Type // reference to a func type whose elements need a width check
@@ -329,10 +338,21 @@ type Chan struct {
 	Dir  ChanDir // channel direction
 }
 
+// Maybe contains Type fields specific to maybe types.
+type Maybe struct {
+	Elem *Type // element type
+}
+
 // ChanType returns t's extra channel-specific fields.
 func (t *Type) ChanType() *Chan {
 	t.wantEtype(TCHAN)
 	return t.Extra.(*Chan)
+}
+
+// MaybeType returns t's extra maybe-specific fields.
+func (t *Type) MaybeType() *Maybe {
+	t.wantEtype(TMAYBE)
+	return t.Extra.(*Maybe)
 }
 
 type Tuple struct {
@@ -471,12 +491,16 @@ func New(et EType) *Type {
 		t.Extra = Ptr{}
 	case TCHANARGS:
 		t.Extra = ChanArgs{}
+	case TMAYBEARGS:
+		t.Extra = MaybeArgs{}
 	case TFUNCARGS:
 		t.Extra = FuncArgs{}
 	case TDDDFIELD:
 		t.Extra = DDDField{}
 	case TCHAN:
 		t.Extra = new(Chan)
+	case TMAYBE:
+		t.Extra = new(Maybe)
 	case TTUPLE:
 		t.Extra = new(Tuple)
 	}
@@ -523,6 +547,14 @@ func NewChan(elem *Type, dir ChanDir) *Type {
 	ct := t.ChanType()
 	ct.Elem = elem
 	ct.Dir = dir
+	return t
+}
+
+// NewMaybe returns a new maybe Type.
+func NewMaybe(elem *Type) *Type {
+	t := New(TMAYBE)
+	ct := t.MaybeType()
+	ct.Elem = elem
 	return t
 }
 
@@ -590,6 +622,13 @@ func NewChanArgs(c *Type) *Type {
 	return t
 }
 
+// NewMaybeArgs returns a new TCHANARGS type for maybe type c.
+func NewMaybeArgs(c *Type) *Type {
+	t := New(TMAYBEARGS)
+	t.Extra = MaybeArgs{T: c}
+	return t
+}
+
 // NewFuncArgs returns a new TFUNCARGS type for func type f.
 func NewFuncArgs(f *Type) *Type {
 	t := New(TFUNCARGS)
@@ -647,6 +686,13 @@ func SubstAny(t *Type, types *[]*Type) *Type {
 		if elem != t.Elem() {
 			t = t.copy()
 			t.Extra.(*Chan).Elem = elem
+		}
+
+	case TMAYBE:
+		elem := SubstAny(t.Elem(), types)
+		if elem != t.Elem() {
+			t = t.copy()
+			t.Extra.(*Maybe).Elem = elem
 		}
 
 	case TMAP:
@@ -712,6 +758,9 @@ func (t *Type) copy() *Type {
 		nt.Extra = &x
 	case TCHAN:
 		x := *t.Extra.(*Chan)
+		nt.Extra = &x
+	case TMAYBE:
+		x := *t.Extra.(*Maybe)
 		nt.Extra = &x
 	case TARRAY:
 		x := *t.Extra.(*Array)
@@ -784,7 +833,7 @@ func (t *Type) Key() *Type {
 }
 
 // Elem returns the type of elements of t.
-// Usable with pointers, channels, arrays, slices, and maps.
+// Usable with pointers, channels, maybes, arrays, slices, and maps.
 func (t *Type) Elem() *Type {
 	switch t.Etype {
 	case TPTR:
@@ -795,6 +844,8 @@ func (t *Type) Elem() *Type {
 		return t.Extra.(Slice).Elem
 	case TCHAN:
 		return t.Extra.(*Chan).Elem
+	case TMAYBE:
+		return t.Extra.(*Maybe).Elem
 	case TMAP:
 		return t.Extra.(*Map).Elem
 	}
@@ -812,6 +863,12 @@ func (t *Type) DDDField() *Type {
 func (t *Type) ChanArgs() *Type {
 	t.wantEtype(TCHANARGS)
 	return t.Extra.(ChanArgs).T
+}
+
+// MaybeArgs returns the maybe type for TMAYBEARGS type t.
+func (t *Type) MaybeArgs() *Type {
+	t.wantEtype(TMAYBEARGS)
+	return t.Extra.(MaybeArgs).T
 }
 
 // FuncArgs returns the func type for TFUNCARGS type t.
@@ -1191,6 +1248,11 @@ func (t *Type) cmp(x *Type) Cmp {
 			return cmpForNe(t.ChanDir() < x.ChanDir())
 		}
 
+	case TMAYBE:
+		// actually we don't want this
+		// use the return t.Elem().cmp(x.Elem())
+		// return t.Elem().Sym.cmpsym(x.Elem().Sym)
+
 	default:
 		e := fmt.Sprintf("Do not know how to compare %v with %v", t, x)
 		panic(e)
@@ -1272,13 +1334,13 @@ func (t *Type) IsUnsafePtr() bool {
 }
 
 // IsPtrShaped reports whether t is represented by a single machine pointer.
-// In addition to regular Go pointer types, this includes map, channel, and
+// In addition to regular Go pointer types, this includes map, channel, maybe, and
 // function types and unsafe.Pointer. It does not include array or struct types
 // that consist of a single pointer shaped type.
 // TODO(mdempsky): Should it? See golang.org/issue/15028.
 func (t *Type) IsPtrShaped() bool {
 	return t.Etype == TPTR || t.Etype == TUNSAFEPTR ||
-		t.Etype == TMAP || t.Etype == TCHAN || t.Etype == TFUNC
+		t.Etype == TMAP || t.Etype == TCHAN || t.Etype == TMAYBE || t.Etype == TFUNC
 }
 
 func (t *Type) IsString() bool {
@@ -1291,6 +1353,10 @@ func (t *Type) IsMap() bool {
 
 func (t *Type) IsChan() bool {
 	return t.Etype == TCHAN
+}
+
+func (t *Type) IsMaybe() bool {
+	return t.Etype == TMAYBE
 }
 
 func (t *Type) IsSlice() bool {

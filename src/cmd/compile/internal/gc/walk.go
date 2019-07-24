@@ -534,6 +534,9 @@ opswitch:
 			n.SetTypecheck(1)
 		}
 
+	case OOK, OERR:
+		Dump("TODO: walk.go OOK, OERR", n)
+
 	case OCOMPLEX:
 		// Use results from call expression as arguments for complex.
 		if n.Left == nil && n.Right == nil {

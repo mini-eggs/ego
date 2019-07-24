@@ -289,6 +289,24 @@ func dowidth(t *types.Type) {
 		}
 		w = 1 // anything will do
 
+	case TMAYBE: // implemented as pointer
+		w = int64(Widthptr)
+
+		checkwidth(t.Elem())
+
+		// make fake type to check later to
+		// trigger channel argument check.
+		t1 := types.NewMaybeArgs(t)
+		checkwidth(t1)
+
+	case TMAYBEARGS:
+		t1 := t.MaybeArgs()
+		dowidth(t1) // just in case
+		if t1.Elem().Width >= 1<<16 {
+			yyerror("maybe element type too large (>64kB)")
+		}
+		w = 1 // anything will do
+
 	case TMAP: // implemented as pointer
 		w = int64(Widthptr)
 		checkwidth(t.Elem())

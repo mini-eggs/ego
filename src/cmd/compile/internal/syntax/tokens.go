@@ -43,6 +43,7 @@ const (
 	_Break       // break
 	_Case        // case
 	_Chan        // chan
+	_Maybe       // maybe
 	_Const       // const
 	_Continue    // continue
 	_Default     // default

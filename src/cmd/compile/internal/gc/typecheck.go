@@ -140,6 +140,7 @@ var _typekind = []string{
 	TSTRUCT:     "struct",
 	TINTER:      "interface",
 	TCHAN:       "chan",
+	TMAYBE:      "maybe",
 	TMAP:        "map",
 	TARRAY:      "array",
 	TSLICE:      "slice",
@@ -498,6 +499,23 @@ func typecheck1(n *Node, top int) (res *Node) {
 			yyerror("chan of go:notinheap type not allowed")
 		}
 		t := types.NewChan(l.Type, n.TChanDir())
+		n.Op = OTYPE
+		n.Type = t
+		n.Left = nil
+		n.ResetAux()
+
+	case OTMAYBE:
+		ok |= Etype
+		n.Left = typecheck(n.Left, Etype)
+		l := n.Left
+		if l.Type == nil {
+			n.Type = nil
+			return n
+		}
+		if l.Type.NotInHeap() {
+			yyerror("maybe of go:notinheap type not allowed")
+		}
+		t := types.NewMaybe(l.Type)
 		n.Op = OTYPE
 		n.Type = t
 		n.Left = nil
@@ -1401,6 +1419,39 @@ func typecheck1(n *Node, top int) (res *Node) {
 
 		n.Type = types.Types[TINT]
 
+	case OOK, OERR:
+		ok |= ctxExpr
+		if !onearg(n, "%v", n.Op) {
+			n.Type = nil
+			return n
+		}
+
+		n.Left = typecheck(n.Left, ctxExpr)
+		n.Left = defaultlit(n.Left, nil)
+		n.Left = implicitstar(n.Left)
+		l := n.Left
+		t := l.Type
+		if t == nil {
+			n.Type = nil
+			return n
+		}
+
+		// TODO: only chekc if OERR does indeed have an
+		// error type. But how?
+		// var ok bool
+		// if n.Op == OOK {
+		// 	ok = okforok[t.Etype]
+		// } else {
+		// 	ok = okforerr[t.Etype]
+		// }
+		// if !ok {
+		// 	yyerror("invalid argument %L for %v, what is it you ask? %v", l, n.Op, t.Etype)
+		// 	n.Type = nil
+		// 	return n
+		// }
+
+		n.Type = types.Types[TMAYBE]
+
 	case OREAL, OIMAG:
 		ok |= ctxExpr
 		if !onearg(n, "%v", n.Op) {
@@ -1787,6 +1838,27 @@ func typecheck1(n *Node, top int) (res *Node) {
 				n.Left = nodintconst(0)
 			}
 			n.Op = OMAKECHAN
+
+		case TMAYBE:
+			l = nil
+			if i < len(args) {
+				l = args[i]
+				i++
+				l = typecheck(l, ctxExpr)
+				l = defaultlit(l, types.Types[TINT])
+				if l.Type == nil {
+					n.Type = nil
+					return n
+				}
+				if !checkmake(t, "buffer", l) {
+					n.Type = nil
+					return n
+				}
+				n.Left = l
+			} else {
+				n.Left = nodintconst(0)
+			}
+			n.Op = OMAKEMAYBE
 		}
 
 		if i < len(args) {
@@ -2211,6 +2283,7 @@ func checkdefergo(n *Node) {
 		OMAKE,
 		OMAKESLICE,
 		OMAKECHAN,
+		OMAKEMAYBE,
 		OMAKEMAP,
 		ONEW,
 		OREAL,
