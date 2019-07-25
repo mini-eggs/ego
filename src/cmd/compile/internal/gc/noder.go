@@ -698,6 +698,9 @@ func (p *noder) expr(expr syntax.Expr) *Node {
 		n := p.nod(expr, OTCHAN, p.typeExpr(expr.Elem), nil)
 		n.SetTChanDir(p.chanDir(expr.Dir))
 		return n
+	case *syntax.MaybeType:
+		n := p.nod(expr, OTMAYBE, p.typeExpr(expr.Elem), nil)
+		return n
 
 	case *syntax.TypeSwitchGuard:
 		n := p.nod(expr, OTYPESW, nil, p.expr(expr.X))

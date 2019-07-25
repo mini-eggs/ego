@@ -723,7 +723,7 @@ func (o *Order) stmt(n *Node) {
 			}
 			fallthrough
 
-		case TCHAN, TSTRING:
+		case TCHAN, TMAYBE, TSTRING:
 			// chan, string, slice, array ranges use value multiple times.
 			// make copy.
 			r := n.Right
@@ -1126,6 +1126,7 @@ func (o *Order) expr(n, lhs *Node) *Node {
 		OIMAG,
 		OLEN,
 		OMAKECHAN,
+		OMAKEMAYBE,
 		OMAKEMAP,
 		OMAKESLICE,
 		ONEW,

@@ -38,6 +38,7 @@ const (
 	TARRAY     = types.TARRAY
 	TSTRUCT    = types.TSTRUCT
 	TCHAN      = types.TCHAN
+	TMAYBE     = types.TMAYBE
 	TMAP       = types.TMAP
 	TINTER     = types.TINTER
 	TFORW      = types.TFORW
@@ -51,8 +52,9 @@ const (
 	TBLANK = types.TBLANK
 
 	// pseudo-types for frame layout
-	TFUNCARGS = types.TFUNCARGS
-	TCHANARGS = types.TCHANARGS
+	TFUNCARGS  = types.TFUNCARGS
+	TCHANARGS  = types.TCHANARGS
+	TMAYBEARGS = types.TMAYBEARGS
 
 	// pseudo-types for import/export
 	TDDDFIELD = types.TDDDFIELD // wrapper: contained type is a ... field

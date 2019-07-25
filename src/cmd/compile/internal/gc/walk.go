@@ -1189,6 +1189,19 @@ opswitch:
 
 		n = mkcall1(chanfn(fnname, 1, n.Type), n.Type, init, typename(n.Type), conv(size, argtype))
 
+	case OMAKEMAYBE:
+		Dump("OMAKEMAYBE", n)
+		panic("walk.go Should we support this?")
+		// Somehow we want something akin to this:
+		// OSTRUCTLIT [0xc0003c0400]
+		// .   STRUCTLIT l(14) tc(1) STRUCT-struct { Val int; Err error }
+		// .   STRUCTLIT-list
+		// .   .   STRUCTKEY l(15) x(0) main.Val
+		// .   .   .   LITERAL-5 l(15) tc(1) int
+		//
+		// .   .   STRUCTKEY l(16) x(8) main.Err
+		// .   .   .   LITERAL-nil tc(1) .nil error
+
 	case OMAKEMAP:
 		t := n.Type
 		hmapType := hmap(t)
@@ -1837,7 +1850,7 @@ func walkprint(nn *Node, init *Nodes) *Node {
 				on = syslook("printiface")
 			}
 			on = substArgTypes(on, n.Type) // any-1
-		case TPTR, TCHAN, TMAP, TFUNC, TUNSAFEPTR:
+		case TPTR, TCHAN, TMAYBE, TMAP, TFUNC, TUNSAFEPTR:
 			on = syslook("printpointer")
 			on = substArgTypes(on, n.Type) // any-1
 		case TSLICE:
@@ -3820,7 +3833,7 @@ func candiscard(n *Node) bool {
 		return false
 
 		// Discardable as long as we know it won't fail because of a bad size.
-	case OMAKECHAN, OMAKEMAP:
+	case OMAKECHAN, OMAKEMAYBE, OMAKEMAP:
 		if Isconst(n.Left, CTINT) && n.Left.Val().U.(*Mpint).CmpInt64(0) == 0 {
 			break
 		}

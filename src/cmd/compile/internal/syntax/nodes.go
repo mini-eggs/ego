@@ -292,6 +292,12 @@ type (
 		Elem Expr
 		expr
 	}
+
+	// maybe Elem
+	MaybeType struct {
+		Elem Expr
+		expr
+	}
 )
 
 type expr struct{ node }

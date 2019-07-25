@@ -507,7 +507,7 @@ func (e *Escape) exprSkipInit(k EscHole, n *Node) {
 		e.spill(k, n)
 		e.discard(n.Left)
 		e.discard(n.Right)
-	case OMAKECHAN:
+	case OMAKECHAN, OMAKEMAYBE:
 		e.discard(n.Left)
 	case OMAKEMAP:
 		e.spill(k, n)
