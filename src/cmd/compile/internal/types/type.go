@@ -345,7 +345,7 @@ func (t *Type) ChanType() *Chan {
 }
 
 type Maybe struct {
-	Elem *Type
+	Elem, Err *Type
 }
 
 // MaybeType returns t's extra maybe-specific fields.
@@ -549,7 +549,7 @@ func NewChan(elem *Type, dir ChanDir) *Type {
 	return t
 }
 
-// NewMaybe returns a new chan Type with direction dir.
+// NewMaybe returns a new maybe Type.
 func NewMaybe(elem *Type) *Type {
 	t := New(TMAYBE)
 	ct := t.MaybeType()
@@ -1248,8 +1248,9 @@ func (t *Type) cmp(x *Type) Cmp {
 		}
 
 	case TMAYBE:
-		// same as line below, we can probably remove this line directly below this coment
-		return t.Elem().cmp(x.Elem())
+		// Might want to add some checking for the type ?
+		// or does the line below handle that? Pretty sure it
+		// does...
 
 	default:
 		e := fmt.Sprintf("Do not know how to compare %v with %v", t, x)

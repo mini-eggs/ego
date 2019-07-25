@@ -10,6 +10,7 @@ import (
 	"cmd/internal/sys"
 	"encoding/binary"
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -533,6 +534,20 @@ opswitch:
 			setintconst(n, t.NumElem())
 			n.SetTypecheck(1)
 		}
+
+	case OOK:
+		if len(os.Getenv("EGO")) > 0 {
+			Dump("walk.go OOK BEFORE", n)
+		}
+
+		// TODO: create maybe type and throw our value inside of it
+		next := &Node{Type: n.Left.Type}
+
+		if len(os.Getenv("EGO")) > 0 {
+			Dump("walk.go OOK AFTER", next)
+		}
+
+		n = next
 
 	case OCOMPLEX:
 		// Use results from call expression as arguments for complex.
@@ -3804,6 +3819,7 @@ func candiscard(n *Node) bool {
 		OKEY,
 		OSTRUCTKEY,
 		OLEN,
+		OOK,
 		OMUL,
 		OLSH,
 		ORSH,

@@ -133,6 +133,9 @@ type ComplexType complex64
 //	slice = append([]byte("hello "), "world"...)
 func append(slice []Type, elems ...Type) []Type
 
+// TODO: documentation
+func ok(v Type) maybe Type
+
 // The copy built-in function copies elements from a source slice into a
 // destination slice. (As a special case, it also will copy bytes from a
 // string to a slice of bytes.) The source and destination may overlap. Copy

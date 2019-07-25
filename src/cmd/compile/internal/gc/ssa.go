@@ -2380,6 +2380,24 @@ func (s *state) expr(n *Node) *ssa.Value {
 			return s.constInt(types.Types[TINT], n.Left.Type.NumElem())
 		}
 
+	case OOK:
+		switch {
+		// TODO: ok(slice)
+		case n.Left.Type.IsSlice():
+			panic("ssa.go TODO: ok(slice)")
+		// 	op := ssa.OpSliceLen
+		// 	if n.Op == OCAP {
+		// 		op = ssa.OpSliceCap
+		// 	}
+		// 	return s.newValue1(op, types.Types[TMAYBE], s.expr(n.Left))
+		case n.Left.Type.IsString(): // string; not reachable for OCAP
+			return s.newValue1(ssa.OpStringLen, types.Types[TMAYBE], s.expr(n.Left))
+		case n.Left.Type.IsMap(), n.Left.Type.IsChan():
+			return s.referenceTypeBuiltin(n, s.expr(n.Left))
+		default: // array
+			return s.constInt(types.Types[TMAYBE], n.Left.Type.NumElem())
+		}
+
 	case OSPTR:
 		a := s.expr(n.Left)
 		if n.Left.Type.IsSlice() {

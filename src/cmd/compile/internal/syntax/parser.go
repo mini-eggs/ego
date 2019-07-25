@@ -1175,6 +1175,7 @@ func (p *parser) typeOrNil() Expr {
 		t := new(MaybeType)
 		t.pos = pos
 		t.Elem = p.maybeElem()
+		t.Err = p.newName("error")
 		return t
 
 	case _Map:

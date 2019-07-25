@@ -8,6 +8,7 @@ import (
 	"cmd/compile/internal/types"
 	"cmd/internal/objabi"
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -505,6 +506,9 @@ func typecheck1(n *Node, top int) (res *Node) {
 		n.ResetAux()
 
 	case OTMAYBE:
+		if len(os.Getenv("EGO")) > 0 {
+			Dump("typecheck.go OTMAYBE", n)
+		}
 		ok |= Etype
 		n.Left = typecheck(n.Left, Etype)
 		l := n.Left
@@ -1419,6 +1423,45 @@ func typecheck1(n *Node, top int) (res *Node) {
 
 		n.Type = types.Types[TINT]
 
+	case OOK:
+		if len(os.Getenv("EGO")) > 0 {
+			Dump("typecheck.go OOK", n)
+		}
+
+		ok |= ctxExpr
+		if !onearg(n, "%v", n.Op) {
+			n.Type = nil
+			return n
+		}
+
+		n.Left = typecheck(n.Left, ctxExpr)
+		n.Left = defaultlit(n.Left, nil)
+		n.Left = implicitstar(n.Left)
+		l := n.Left
+		t := l.Type
+		if t == nil {
+			n.Type = nil
+			return n
+		}
+
+		// it can be any type
+		// var ok bool
+		// if n.Op == OLEN {
+		// 	ok = okforlen[t.Etype]
+		// } else {
+		// 	ok = okforcap[t.Etype]
+		// }
+		// if !ok {
+		// 	yyerror("invalid argument %L for %v", l, n.Op)
+		// 	n.Type = nil
+		// 	return n
+		// }
+
+		n.Type = types.Types[TMAYBE]
+
+		// TODO: straight replace ok(Type) calls with the maybe type
+		// with variable itself
+
 	case OREAL, OIMAG:
 		ok |= ctxExpr
 		if !onearg(n, "%v", n.Op) {
@@ -1807,12 +1850,16 @@ func typecheck1(n *Node, top int) (res *Node) {
 			n.Op = OMAKECHAN
 
 		case TMAYBE:
+			if len(os.Getenv("EGO")) > 0 {
+				Dump("typecheck.go TMAYBE", n)
+			}
+
 			l = nil
 			if i < len(args) {
 				l = args[i]
 				i++
 				l = typecheck(l, ctxExpr)
-				l = defaultlit(l, types.Types[TINT])
+				l = defaultlit(l, types.Types[TMAYBE])
 				if l.Type == nil {
 					n.Type = nil
 					return n
@@ -2247,6 +2294,7 @@ func checkdefergo(n *Node) {
 		OCOMPLEX,
 		OIMAG,
 		OLEN,
+		OOK,
 		OMAKE,
 		OMAKESLICE,
 		OMAKECHAN,

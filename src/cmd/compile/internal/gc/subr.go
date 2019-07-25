@@ -522,7 +522,7 @@ func methtype(t *types.Type) *types.Type {
 		return t
 	}
 	switch t.Etype {
-	case TARRAY, TCHAN, TFUNC, TMAP, TSLICE, TSTRING, TSTRUCT:
+	case TARRAY, TCHAN, TMAYBE, TFUNC, TMAP, TSLICE, TSTRING, TSTRUCT:
 		return t
 	}
 	return nil
@@ -635,6 +635,7 @@ func assignop(src *types.Type, dst *types.Type, why *string) Op {
 			TFUNC,
 			TMAP,
 			TCHAN,
+			TMAYBE,
 			TINTER,
 			TSLICE:
 			return OCONVNOP
@@ -820,6 +821,8 @@ func assignconvfn(n *Node, t *types.Type, context func() string) *Node {
 	op := assignop(n.Type, t, &why)
 	if op == 0 {
 		if !old.Diag() {
+			Dump("TESTING 1", n)
+			Dump("TESTING 2", &Node{Type: t})
 			yyerror("cannot use %L as type %v in %s%s", n, t, context(), why)
 		}
 		op = OCONV
@@ -1080,7 +1083,7 @@ func safeexpr(n *Node, init *Nodes) *Node {
 	case ONAME, OLITERAL:
 		return n
 
-	case ODOT, OLEN, OCAP:
+	case ODOT, OLEN, OCAP, OOK:
 		l := safeexpr(n.Left, init)
 		if l == n.Left {
 			return n
@@ -1830,6 +1833,7 @@ func isdirectiface(t *types.Type) bool {
 	switch t.Etype {
 	case TPTR,
 		TCHAN,
+		TMAYBE,
 		TMAP,
 		TFUNC,
 		TUNSAFEPTR:

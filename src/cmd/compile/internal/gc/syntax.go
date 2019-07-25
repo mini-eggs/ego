@@ -658,6 +658,7 @@ const (
 	OKEY         // Left:Right (key:value in struct/array/map literal)
 	OSTRUCTKEY   // Sym:Left (key:value in struct literal, after type checking)
 	OLEN         // len(Left)
+	OOK          // len(Left)
 	OMAKE        // make(List) (before type checking converts to one of the following)
 	OMAKECHAN    // make(Type, Left) (type is chan)
 	OMAKEMAYBE   // make(Type, Left) (type is maybe)

@@ -295,7 +295,7 @@ type (
 
 	// maybe Elem
 	MaybeType struct {
-		Elem Expr
+		Elem, Err Expr
 		expr
 	}
 )

@@ -56,6 +56,7 @@ var builtinFuncs = [...]struct {
 	{"delete", ODELETE},
 	{"imag", OIMAG},
 	{"len", OLEN},
+	{"ok", OOK},
 	{"make", OMAKE},
 	{"new", ONEW},
 	{"panic", OPANIC},
@@ -345,9 +346,12 @@ func typeinit() {
 
 	types.Types[TINTER] = types.New(TINTER)
 
+	types.Types[TMAYBE] = types.New(TMAYBE)
+
 	// simple aliases
 	simtype[TMAP] = TPTR
 	simtype[TCHAN] = TPTR
+	simtype[TMAYBE] = TPTR
 	simtype[TFUNC] = TPTR
 	simtype[TUNSAFEPTR] = TPTR
 
