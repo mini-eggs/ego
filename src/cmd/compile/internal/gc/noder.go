@@ -841,10 +841,6 @@ func (p *noder) maybeToStructType(expr *syntax.MaybeType) *Node {
 		p.setlineno(expr)
 		n := p.nodSym(field, ODCLFIELD, p.typeExpr(field.Type), p.name(field.Name))
 		l = append(l, n)
-
-		if len(os.Getenv("EGO")) > 0 {
-			fmt.Printf("type: %v\nname: %v\n", field.Type, field.Name)
-		}
 	}
 
 	p.setlineno(expr)
@@ -853,31 +849,9 @@ func (p *noder) maybeToStructType(expr *syntax.MaybeType) *Node {
 	return n
 }
 
-// type: &{int {{{0xc000372000 10 6}}}}
-// name: &{Val {{{0xc000372000 10 2}}}}
-// pos: ../tmp/struct.go:10:2
-// type: &{error {{{0xc000372000 11 6}}}}
-// name: &{Err {{{0xc000372000 11 2}}}}
-// pos: ../tmp/struct.go:11:2
-// type: &{int {{{0xc000372000 18 6}}}}
-// name: &{Val {{{0xc000372000 18 2}}}}
-// pos: ../tmp/struct.go:18:2
-// type: &{error {{{0xc000372000 19 6}}}}
-// name: &{Err {{{0xc000372000 19 2}}}}
-// pos: ../tmp/struct.go:19:2
-// type: &{int {{{0xc000372000 27 6}}}}
-// name: &{Val {{{0xc000372000 27 2}}}}
-// pos: ../tmp/struct.go:27:2
-// type: &{error {{{0xc000372000 28 6}}}}
-// name: &{Err {{{0xc000372000 28 2}}}}
-// pos: ../tmp/struct.go:28:2}}
-
 func (p *noder) structType(expr *syntax.StructType) *Node {
 	var l []*Node
 	for i, field := range expr.FieldList {
-		if len(os.Getenv("EGO")) > 0 {
-			fmt.Printf("type: %v\nname: %v\npos: %v\n", field.Type, field.Name, field.Pos())
-		}
 		p.setlineno(field)
 		var n *Node
 		if field.Name == nil {
@@ -886,9 +860,6 @@ func (p *noder) structType(expr *syntax.StructType) *Node {
 			n = p.nodSym(field, ODCLFIELD, p.typeExpr(field.Type), p.name(field.Name))
 		}
 		if i < len(expr.TagList) && expr.TagList[i] != nil {
-			if len(os.Getenv("EGO")) > 0 {
-				fmt.Printf("we do inface get here\n")
-			}
 			n.SetVal(p.basicLit(expr.TagList[i]))
 		}
 		l = append(l, n)

@@ -1424,10 +1424,6 @@ func typecheck1(n *Node, top int) (res *Node) {
 		n.Type = types.Types[TINT]
 
 	case OOK:
-		if len(os.Getenv("EGO")) > 0 {
-			Dump("typecheck.go OOK", n)
-		}
-
 		ok |= ctxExpr
 		if !onearg(n, "%v", n.Op) {
 			n.Type = nil
@@ -1444,23 +1440,40 @@ func typecheck1(n *Node, top int) (res *Node) {
 			return n
 		}
 
-		// it can be any type
-		// var ok bool
-		// if n.Op == OLEN {
-		// 	ok = okforlen[t.Etype]
-		// } else {
-		// 	ok = okforcap[t.Etype]
-		// }
-		// if !ok {
 		// 	yyerror("invalid argument %L for %v", l, n.Op)
-		// 	n.Type = nil
-		// 	return n
-		// }
 
-		n.Type = types.Types[TMAYBE]
+		// n.Type = types.Types[TMAYBE]
 
 		// TODO: straight replace ok(Type) calls with the maybe type
 		// with variable itself
+
+		// replace w/ struct lit
+
+		// For `Val`
+		{
+			var l *Node
+			l.Op = OSTRUCTKEY
+			l.Left = l.Right
+			l.Right = nil
+			var s *types.Sym
+			s.Name = "Val"
+			l.Sym = s
+			n.List = append(n.List, l)
+		}
+
+		n.Op = OSTRUCTLIT
+		n.Right = nil
+
+		// ORETURN [0xc00039ca80]
+		// .   RETURN l(6) tc(2)
+		// .   RETURN-list
+		// .   .   STRUCTLIT l(9) tc(1) STRUCT-struct { Val int; Err error }
+		// .   .   STRUCTLIT-list
+		// .   .   .   STRUCTKEY l(10) x(0) main.Val
+		// .   .   .   .   LITERAL-5 l(10) tc(1) int
+		//
+		// .   .   .   STRUCTKEY l(11) x(8) main.Err
+		// .   .   .   .   LITERAL-nil tc(1) .nil error
 
 	case OREAL, OIMAG:
 		ok |= ctxExpr
