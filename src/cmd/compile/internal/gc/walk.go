@@ -10,7 +10,6 @@ import (
 	"cmd/internal/sys"
 	"encoding/binary"
 	"fmt"
-	"os"
 	"strings"
 )
 
@@ -536,17 +535,8 @@ opswitch:
 		}
 
 	case OOK:
-		if len(os.Getenv("EGO")) > 0 {
-			Dump("walk.go OOK BEFORE", n)
-		}
-
 		// TODO: create maybe type and throw our value inside of it
 		next := &Node{Type: n.Left.Type}
-
-		if len(os.Getenv("EGO")) > 0 {
-			Dump("walk.go OOK AFTER", next)
-		}
-
 		n = next
 
 	case OCOMPLEX:

@@ -71,7 +71,7 @@ func identical(t1, t2 *Type, cmpTags bool, assumedEqual map[typePair]struct{}) b
 		}
 		for i, f1 := range t1.FieldSlice() {
 			f2 := t2.Field(i)
-			if f1.Sym != f2.Sym || f1.Embedded != f2.Embedded || !identical(f1.Type, f2.Type, cmpTags, assumedEqual) {
+			if !f1.Sym.Equal(f2.Sym) || f1.Embedded != f2.Embedded || !identical(f1.Type, f2.Type, cmpTags, assumedEqual) {
 				return false
 			}
 			if cmpTags && f1.Note != f2.Note {

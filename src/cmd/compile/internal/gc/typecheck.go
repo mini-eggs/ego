@@ -8,7 +8,6 @@ import (
 	"cmd/compile/internal/types"
 	"cmd/internal/objabi"
 	"fmt"
-	"os"
 	"strings"
 )
 
@@ -506,9 +505,6 @@ func typecheck1(n *Node, top int) (res *Node) {
 		n.ResetAux()
 
 	case OTMAYBE:
-		if len(os.Getenv("EGO")) > 0 {
-			Dump("typecheck.go OTMAYBE", n)
-		}
 		ok |= Etype
 		n.Left = typecheck(n.Left, Etype)
 		l := n.Left
@@ -1423,135 +1419,6 @@ func typecheck1(n *Node, top int) (res *Node) {
 
 		n.Type = types.Types[TINT]
 
-	// case OOK:
-	// 	ok |= ctxExpr
-	// 	if !onearg(n, "%v", n.Op) {
-	// 		n.Type = nil
-	// 		return n
-	// 	}
-
-	// 	typecheckargs(n)
-
-	// 	n.Left = typecheck(n.Left, ctxExpr)
-	// 	n.Left = defaultlit(n.Left, nil)
-	// 	n.Left = implicitstar(n.Left)
-	// 	l := n.Left
-	// 	t := l.Type
-	// 	if t == nil {
-	// 		n.Type = nil
-	// 		return n
-	// 	}
-
-	// 	n.Type = types.Types[TMAYBE]
-
-	// 	// n = &Node{
-	// 	// 	Op: OSTRUCTLIT,
-	// 	// }
-
-	// 	n.Type = types.Types[TSTRUCT]
-	// 	n.Op = OCOMPLIT
-
-	// 	// types
-	// 	{
-	// 		next := &Node{
-	// 			Op: OTYPE,
-	// 		}
-
-	// 		next.Type = &types.Type{
-	// 			Etype: TSTRUCT,
-	// 		}
-
-	// 		n.Right = next
-	// 	}
-
-	// 	// // values
-	// 	// {
-	// 	// 	var vars []*Node
-	// 	// 	vars = append(vars, n.Left)
-	// 	// 	n.List.Set(vars)
-	// 	// }
-
-	// 	n.List.Set(nil)
-	// 	n.Left = nil
-
-	// 	// n = typecheckcomplit(n)
-	// 	fmt.Printf("type: %v\n", n.List.First().Type)
-	// 	n.Type = n.List.First().Type
-	// 	Dump("POST", n)
-	// 	if n.Type == nil {
-	// 		fmt.Println("why are we here")
-	// 		return n
-	// 	}
-
-	// // case OAPPEND:
-	// // 	ok |= ctxExpr
-	// // 	typecheckargs(n)
-	// // 	args := n.List
-	// // 	if args.Len() == 0 {
-	// // 		yyerror("missing arguments to append")
-	// 		n.Type = nil
-	// 		return n
-	// 	}
-
-	// 	t := args.First().Type
-	// 	if t == nil {
-	// 		n.Type = nil
-	// 		return n
-
-	// yyerror("invalid argument %L for %v", l, n.Op)
-	// n.Left.Type, the Val type of our struct to return
-
-	// n.Op = OSTRUCTLIT
-	// n.List.Set(nil)
-	// n.Right = nil
-	// n.Type = nil
-
-	// ls := n.List.Slice()
-	// for i, n1 := range ls {
-	// 	setlineno(n1)
-	// 	n1 = typecheck(n1, ctxExpr)
-	// 	ls[i] = n1
-	// 	if i >= t.NumFields() {
-	// 		if !errored {
-	// 			yyerror("too many values in %v", n)
-	// 			errored = true
-	// 		}
-	// 		continue
-	// 	}
-
-	// 	f := t.Field(i)
-	// 	s := f.Sym
-	// 	if s != nil && !types.IsExported(s.Name) && s.Pkg != localpkg {
-	// 		yyerror("implicit assignment of unexported field '%s' in %v literal", s.Name, t)
-	// 	}
-	// 	// No pushtype allowed here. Must name fields for that.
-	// 	n1 = assignconv(n1, f.Type, "field value")
-	// 	n1 = nodSym(OSTRUCTKEY, n1, f.Sym)
-	// 	n1.Xoffset = f.Offset
-	// 	ls[i] = n1
-	// }
-	// if len(ls) < t.NumFields() {
-	// 	yyerror("too few values in %v", n)
-	// }
-
-	// .   COMPLIT l(7) tc(2) STRUCT-struct { Val int; Err error }
-	// .   .   TYPE <S> l(7) tc(1) type=STRUCT-struct { Val int; Err error } STRUCT-struct { Val int; Err error }
-	// .   COMPLIT-list
-	// .   .   STRUCTKEY l(7) x(0) main.Val
-	// .   .   .   LITERAL-5 l(7) tc(1) int
-	// .   .   STRUCTKEY l(7) x(8) main.Err
-	// .   .   .   LITERAL-nil tc(1) .nil error
-
-	// ORETURN [0xc00039ca80]
-	// .   RETURN l(6) tc(2)
-	// .   RETURN-list
-	// .   .   STRUCTLIT l(9) tc(1) STRUCT-struct { Val int; Err error }
-	// .   .   STRUCTLIT-list
-	// .   .   .   STRUCTKEY l(10) x(0) main.Val
-	// .   .   .   .   LITERAL-5 l(10) tc(1) int
-	// .   .   .   STRUCTKEY l(11) x(8) main.Err
-	// .   .   .   .   LITERAL-nil tc(1) .nil error
-
 	case OREAL, OIMAG:
 		ok |= ctxExpr
 		if !onearg(n, "%v", n.Op) {
@@ -1690,63 +1557,64 @@ func typecheck1(n *Node, top int) (res *Node) {
 	case OOK:
 		ok |= ctxExpr
 
-		/* check arguments */
-
+		// check arguments
 		if !onearg(n, "%v", n.Op) {
 			n.Type = nil
 			return n
 		}
-
 		typecheckargs(n)
 
-		// coerce into
-		// struct { Val int; Err error }{$VALUE, nil}
-
-		// targetType := n.Left.Type
-		n.List.Set(nil)
-
-		next := &Node{
-			Op: OCOMPLIT,
+		// from untyped to type
+		n.Left = typecheck(n.Left, ctxExpr)
+		n.Left = defaultlit(n.Left, nil)
+		n.Left = implicitstar(n.Left)
+		if n.Left.Type == nil {
+			n.Type = nil
+			return n
 		}
+
+		// coerce
+
+		next := &Node{Op: OCOMPLIT}
 
 		// the type part
-		{
-			typ := &Node{}
-			typ.Op = OTYPE
+		typ := &Node{Op: OTSTRUCT}
 
-			valNode := &Node{
-				Op: ODCLFIELD,
-				Sym: &types.Sym{
-					Name: "Val",
-				},
+		valNode := &Node{
+			Op:   ODCLFIELD,
+			Sym:  &types.Sym{Name: "Val"},
+			Type: n.Left.Type,
+			E:    "Val",
+			Right: &Node{
+				Op:   ONONAME,
+				Sym:  &types.Sym{Name: "Val"},
 				Type: n.Left.Type,
-				E:    "Val",
-			}
-
-			// valNode := n.Left
-			// valNode.Op = ODCLFIELD
-			// valNode.E = "Val"
-
-			typ.List.Append(valNode)
-			typ.Type = tostruct(typ.List.Slice())
-			next.Right = typ
+			},
 		}
+
+		errNode := &Node{
+			Op:   ODCLFIELD,
+			Sym:  &types.Sym{Name: "Err"},
+			Type: types.Errortype,
+			E:    "Err",
+			Right: &Node{
+				Op:   ONONAME,
+				Sym:  &types.Sym{Name: "Err"},
+				Type: types.Errortype,
+			},
+		}
+
+		typ.List.Append(valNode)
+		typ.List.Append(errNode)
+		typ.Type = tostruct(typ.List.Slice())
+
+		next.Right = typ
 
 		// the values part
 		next.List.Append(n.Left)
-
-		Dump("BEFORE", n)
-		Dump("AFTER", next)
+		next.List.Append(&Node{Op: OPAREN, Left: nodnil()})
 
 		return typecheck1(next, top)
-
-		// .   COMPLIT l(7) tc(2) STRUCT-struct { Val int; Err error }
-		// .   .   TYPE <S> l(7) tc(1) type=STRUCT-struct { Val int; Err error } STRUCT-struct { Val int; Err error }
-		// .   COMPLIT-list
-		// .   .   STRUCTKEY l(7) x(0) main.Val
-		// .   .   .   LITERAL-5 l(7) tc(1) int
-		// .   .   STRUCTKEY l(7) x(8) main.Err
-		// .   .   .   LITERAL-nil tc(1) .nil error
 
 	case OAPPEND:
 		ok |= ctxExpr
@@ -2001,10 +1869,6 @@ func typecheck1(n *Node, top int) (res *Node) {
 			n.Op = OMAKECHAN
 
 		case TMAYBE:
-			if len(os.Getenv("EGO")) > 0 {
-				Dump("typecheck.go TMAYBE", n)
-			}
-
 			l = nil
 			if i < len(args) {
 				l = args[i]

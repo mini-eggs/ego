@@ -7,6 +7,7 @@ package types
 import (
 	"cmd/internal/obj"
 	"cmd/internal/src"
+	"reflect"
 	"unicode"
 	"unicode/utf8"
 )
@@ -125,6 +126,11 @@ func (a *Sym) Less(b *Sym) bool {
 		return a.Pkg.Path < b.Pkg.Path
 	}
 	return false
+}
+
+// Equal compares two symbols. Alias to reflect.DeepEqual
+func (a *Sym) Equal(b *Sym) bool {
+	return reflect.DeepEqual(a, b)
 }
 
 // IsExported reports whether name is an exported Go symbol (that is,

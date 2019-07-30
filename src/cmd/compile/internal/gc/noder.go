@@ -827,6 +827,7 @@ func (p *noder) maybeToStructType(expr *syntax.MaybeType) *Node {
 		}
 		p.setlineno(expr)
 		n := p.nodSym(field, ODCLFIELD, p.typeExpr(field.Type), p.name(field.Name))
+		n.Sym.Pkg = nil // we're package agnostic
 		l = append(l, n)
 	}
 
@@ -840,6 +841,7 @@ func (p *noder) maybeToStructType(expr *syntax.MaybeType) *Node {
 		}
 		p.setlineno(expr)
 		n := p.nodSym(field, ODCLFIELD, p.typeExpr(field.Type), p.name(field.Name))
+		n.Sym.Pkg = nil // we're package agnostic
 		l = append(l, n)
 	}
 
