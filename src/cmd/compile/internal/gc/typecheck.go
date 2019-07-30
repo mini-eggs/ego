@@ -2885,7 +2885,6 @@ func typecheckcomplit(n *Node) (res *Node) {
 	}()
 
 	if n.Right == nil {
-		Dump("TEST", n)
 		yyerrorl(n.Pos, "missing type in composite literal")
 		n.Type = nil
 		return n
