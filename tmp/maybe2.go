@@ -3,13 +3,7 @@ package main
 import "fmt"
 
 func getmaybe() maybe int {
-	return struct {
-		Val int
-		Err error 
-	}{
-		Val :5,
-		Err : nil,
-	}
+	return struct { Val int; Err error }{5, nil}
 }
 
 func main() {
