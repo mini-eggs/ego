@@ -57,6 +57,7 @@ var builtinFuncs = [...]struct {
 	{"imag", OIMAG},
 	{"len", OLEN},
 	{"ok", OOK},
+	{"err", OERR},
 	{"make", OMAKE},
 	{"new", ONEW},
 	{"panic", OPANIC},

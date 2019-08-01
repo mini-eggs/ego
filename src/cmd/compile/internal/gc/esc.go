@@ -630,7 +630,7 @@ func mayAffectMemory(n *Node) bool {
 		return mayAffectMemory(n.Left) || mayAffectMemory(n.Right)
 
 	// Left group.
-	case ODOT, ODOTPTR, ODEREF, OCONVNOP, OCONV, OLEN, OCAP, OOK,
+	case ODOT, ODOTPTR, ODEREF, OCONVNOP, OCONV, OLEN, OCAP, OOK, OERR,
 		ONOT, OBITNOT, OPLUS, ONEG, OALIGNOF, OOFFSETOF, OSIZEOF:
 		return mayAffectMemory(n.Left)
 

@@ -1126,6 +1126,7 @@ func (o *Order) expr(n, lhs *Node) *Node {
 		OIMAG,
 		OLEN,
 		OOK,
+		OERR,
 		OMAKECHAN,
 		OMAKEMAYBE,
 		OMAKEMAP,

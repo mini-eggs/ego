@@ -1604,15 +1604,79 @@ func typecheck1(n *Node, top int) (res *Node) {
 			},
 		}
 
-		typ.List.Append(valNode)
 		typ.List.Append(errNode)
+		typ.List.Append(valNode)
 		typ.Type = tostruct(typ.List.Slice())
 
 		next.Right = typ
 
 		// the values part
-		next.List.Append(n.Left)
 		next.List.Append(&Node{Op: OPAREN, Left: nodnil()})
+		next.List.Append(n.Left)
+
+		return typecheck1(next, top)
+
+	case OERR:
+		ok |= ctxExpr
+
+		// check arguments
+		if !onearg(n, "%v", n.Op) {
+			n.Type = nil
+			return n
+		}
+		typecheckargs(n)
+
+		// from untyped to type
+		n.Left = typecheck(n.Left, ctxExpr)
+		n.Left = defaultlit(n.Left, nil)
+		n.Left = implicitstar(n.Left)
+		if n.Left.Type == nil {
+			n.Type = nil
+			return n
+		}
+
+		// coerce
+
+		next := &Node{Op: OCOMPLIT}
+
+		// the type part
+		typ := &Node{Op: OTSTRUCT}
+		// TODO: what about nested functions????
+		// TODO: Also, multi returns?
+		targetTyp := Curfn.Type.Results().Field(0).Type.Field(1).Type
+		valSym := &types.Sym{Name: "Val"}
+		errSym := &types.Sym{Name: "Err"}
+
+		valNode := &Node{
+			Op:   ODCLFIELD,
+			Sym:  valSym,
+			Type: targetTyp,
+			E:    "Val",
+			Right: &Node{
+				Op:   ONONAME,
+				Sym:  valSym,
+				Type: targetTyp,
+			},
+		}
+
+		errNode := &Node{
+			Op:   ODCLFIELD,
+			Sym:  errSym,
+			Type: types.Errortype,
+			E:    "Err",
+			Right: &Node{
+				Op:   ONONAME,
+				Sym:  errSym,
+				Type: types.Errortype,
+			},
+		}
+
+		typ.List.Append(errNode)
+		typ.List.Append(valNode)
+		typ.Type = tostruct(typ.List.Slice())
+
+		next.Right = typ
+		next.List.Append(nodSym(OSTRUCTKEY, n.Left, errSym))
 
 		return typecheck1(next, top)
 
@@ -2310,6 +2374,7 @@ func checkdefergo(n *Node) {
 		OIMAG,
 		OLEN,
 		OOK,
+		OERR,
 		OMAKE,
 		OMAKESLICE,
 		OMAKECHAN,

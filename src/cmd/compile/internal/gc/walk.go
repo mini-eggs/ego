@@ -534,11 +534,6 @@ opswitch:
 			n.SetTypecheck(1)
 		}
 
-	case OOK:
-		// TODO: create maybe type and throw our value inside of it
-		next := &Node{Type: n.Left.Type}
-		n = next
-
 	case OCOMPLEX:
 		// Use results from call expression as arguments for complex.
 		if n.Left == nil && n.Right == nil {
@@ -1195,6 +1190,7 @@ opswitch:
 		n = mkcall1(chanfn(fnname, 1, n.Type), n.Type, init, typename(n.Type), conv(size, argtype))
 
 	case OMAKEMAYBE:
+		// TODO: REMOVE THIS
 		Dump("OMAKEMAYBE", n)
 		panic("walk.go Should we support this?")
 		// Somehow we want something akin to this:
@@ -3810,6 +3806,7 @@ func candiscard(n *Node) bool {
 		OSTRUCTKEY,
 		OLEN,
 		OOK,
+		OERR,
 		OMUL,
 		OLSH,
 		ORSH,

@@ -817,20 +817,6 @@ func (p *noder) chanDir(dir syntax.ChanDir) types.ChanDir {
 func (p *noder) maybeToStructType(expr *syntax.MaybeType) *Node {
 	var l []*Node
 
-	// for `Val`
-	{
-		field := &syntax.Field{
-			Name: &syntax.Name{
-				Value: "Val",
-			},
-			Type: expr.Elem,
-		}
-		p.setlineno(expr)
-		n := p.nodSym(field, ODCLFIELD, p.typeExpr(field.Type), p.name(field.Name))
-		n.Sym.Pkg = nil // we're package agnostic
-		l = append(l, n)
-	}
-
 	// for `Err`
 	{
 		field := &syntax.Field{
@@ -838,6 +824,20 @@ func (p *noder) maybeToStructType(expr *syntax.MaybeType) *Node {
 				Value: "Err",
 			},
 			Type: expr.Err,
+		}
+		p.setlineno(expr)
+		n := p.nodSym(field, ODCLFIELD, p.typeExpr(field.Type), p.name(field.Name))
+		n.Sym.Pkg = nil // we're package agnostic
+		l = append(l, n)
+	}
+
+	// for `Val`
+	{
+		field := &syntax.Field{
+			Name: &syntax.Name{
+				Value: "Val",
+			},
+			Type: expr.Elem,
 		}
 		p.setlineno(expr)
 		n := p.nodSym(field, ODCLFIELD, p.typeExpr(field.Type), p.name(field.Name))

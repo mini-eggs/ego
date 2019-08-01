@@ -497,7 +497,7 @@ func (e *Escape) exprSkipInit(k EscHole, n *Node) {
 	case ORECV:
 		e.discard(n.Left)
 
-	case OCALLMETH, OCALLFUNC, OCALLINTER, OLEN, OCAP, OOK, OCOMPLEX, OREAL, OIMAG, OAPPEND, OCOPY:
+	case OCALLMETH, OCALLFUNC, OCALLINTER, OLEN, OCAP, OOK, OERR, OCOMPLEX, OREAL, OIMAG, OAPPEND, OCOPY:
 		e.call([]EscHole{k}, n, nil)
 
 	case ONEW:
@@ -737,7 +737,7 @@ func (e *Escape) call(ks []EscHole, call, where *Node) {
 		recv = call.Left.Left
 	case OAPPEND, ODELETE, OPRINT, OPRINTN, ORECOVER:
 		// ok
-	case OLEN, OCAP, OOK, OREAL, OIMAG, OCLOSE, OPANIC:
+	case OLEN, OCAP, OOK, OERR, OREAL, OIMAG, OCLOSE, OPANIC:
 		args = []*Node{call.Left}
 	case OCOMPLEX, OCOPY:
 		args = []*Node{call.Left, call.Right}

@@ -1081,7 +1081,7 @@ func safeexpr(n *Node, init *Nodes) *Node {
 	case ONAME, OLITERAL:
 		return n
 
-	case ODOT, OLEN, OCAP, OOK:
+	case ODOT, OLEN, OCAP, OOK, OERR:
 		l := safeexpr(n.Left, init)
 		if l == n.Left {
 			return n
