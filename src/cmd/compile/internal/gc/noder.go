@@ -1070,6 +1070,8 @@ func (p *noder) stmtFall(stmt syntax.Stmt, fallOK bool) *Node {
 		return p.switchStmt(stmt)
 	case *syntax.SelectStmt:
 		return p.selectStmt(stmt)
+	case *syntax.PairStmt:
+		return p.pairStmtTransform(stmt)
 	}
 	panic("unhandled Stmt")
 }
@@ -1260,6 +1262,12 @@ func (p *noder) caseClauses(clauses []*syntax.CaseClause, tswitch *Node, rbrace 
 		p.closeScope(rbrace)
 	}
 	return nodes
+}
+
+func (p *noder) pairStmtTransform(stmt *syntax.PairStmt) *Node {
+	// TODO: transform into a declaration (of unused name)
+	// and if else
+	panic("TODO")
 }
 
 func (p *noder) selectStmt(stmt *syntax.SelectStmt) *Node {

@@ -887,8 +887,8 @@ func (t *tester) out(v string) {
 }
 
 func (t *tester) extLink() bool {
-	pair := gohostos + "-" + goarch
-	switch pair {
+	pairing := gohostos + "-" + goarch
+	switch pairing {
 	case "aix-ppc64",
 		"android-arm",
 		"darwin-386", "darwin-amd64", "darwin-arm", "darwin-arm64",
@@ -933,13 +933,13 @@ func (t *tester) internalLink() bool {
 }
 
 func (t *tester) supportedBuildmode(mode string) bool {
-	pair := goos + "-" + goarch
+	pairing := goos + "-" + goarch
 	switch mode {
 	case "c-archive":
 		if !t.extLink() {
 			return false
 		}
-		switch pair {
+		switch pairing {
 		case "aix-ppc64",
 			"darwin-386", "darwin-amd64", "darwin-arm", "darwin-arm64",
 			"linux-amd64", "linux-386", "linux-ppc64le", "linux-s390x",
@@ -949,7 +949,7 @@ func (t *tester) supportedBuildmode(mode string) bool {
 		}
 		return false
 	case "c-shared":
-		switch pair {
+		switch pairing {
 		case "linux-386", "linux-amd64", "linux-arm", "linux-arm64", "linux-ppc64le", "linux-s390x",
 			"darwin-amd64", "darwin-386",
 			"freebsd-amd64",
@@ -959,7 +959,7 @@ func (t *tester) supportedBuildmode(mode string) bool {
 		}
 		return false
 	case "shared":
-		switch pair {
+		switch pairing {
 		case "linux-386", "linux-amd64", "linux-arm", "linux-arm64", "linux-ppc64le", "linux-s390x":
 			return true
 		}
@@ -967,7 +967,7 @@ func (t *tester) supportedBuildmode(mode string) bool {
 	case "plugin":
 		// linux-arm64 is missing because it causes the external linker
 		// to crash, see https://golang.org/issue/17138
-		switch pair {
+		switch pairing {
 		case "linux-386", "linux-amd64", "linux-arm", "linux-s390x", "linux-ppc64le":
 			return true
 		case "darwin-amd64":
@@ -975,7 +975,7 @@ func (t *tester) supportedBuildmode(mode string) bool {
 		}
 		return false
 	case "pie":
-		switch pair {
+		switch pairing {
 		case "aix/ppc64",
 			"linux-386", "linux-amd64", "linux-arm", "linux-arm64", "linux-ppc64le", "linux-s390x",
 			"android-amd64", "android-arm", "android-arm64", "android-386":
@@ -1023,8 +1023,8 @@ func (t *tester) cgoTest(dt *distTest) error {
 		cmd.Env = append(os.Environ(), "GOFLAGS=-ldflags=-linkmode=internal")
 	}
 
-	pair := gohostos + "-" + goarch
-	switch pair {
+	pairing := gohostos + "-" + goarch
+	switch pairing {
 	case "darwin-386", "darwin-amd64",
 		"openbsd-386", "openbsd-amd64",
 		"windows-386", "windows-amd64":
@@ -1052,7 +1052,7 @@ func (t *tester) cgoTest(dt *distTest) error {
 		t.addCmd(dt, "misc/cgo/testtls", t.goTest(), "-ldflags", "-linkmode=auto")
 		t.addCmd(dt, "misc/cgo/testtls", t.goTest(), "-ldflags", "-linkmode=external")
 
-		switch pair {
+		switch pairing {
 		case "aix-ppc64", "netbsd-386", "netbsd-amd64":
 			// no static linking
 		case "freebsd-arm":

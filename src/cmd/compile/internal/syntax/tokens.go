@@ -64,6 +64,7 @@ const (
 	_Select      // select
 	_Struct      // struct
 	_Switch      // switch
+	_Pair        // pair
 	_Type        // type
 	_Var         // var
 

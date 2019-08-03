@@ -53,14 +53,15 @@ func _() {
 	_ = x[_Select-43]
 	_ = x[_Struct-44]
 	_ = x[_Switch-45]
-	_ = x[_Type-46]
-	_ = x[_Var-47]
-	_ = x[tokenCount-48]
+	_ = x[_Pair-46]
+	_ = x[_Type-47]
+	_ = x[_Var-48]
+	_ = x[tokenCount-49]
 }
 
-const _token_name = "EOFnameliteralopop=opop=:=<-*([{)]},;:....breakcasechanmaybeconstcontinuedefaultdeferelsefallthroughforfuncgogotoifimportinterfacemappackagerangereturnselectstructswitchtypevar"
+const _token_name = "EOFnameliteralopop=opop=:=<-*([{)]},;:....breakcasechanmaybeconstcontinuedefaultdeferelsefallthroughforfuncgogotoifimportinterfacemappackagerangereturnselectstructswitchpairtypevar"
 
-var _token_index = [...]uint8{0, 3, 7, 14, 16, 19, 23, 24, 26, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 42, 47, 51, 55, 60, 65, 73, 80, 85, 89, 100, 103, 107, 109, 113, 115, 121, 130, 133, 140, 145, 151, 157, 163, 169, 173, 176, 176}
+var _token_index = [...]uint8{0, 3, 7, 14, 16, 19, 23, 24, 26, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 42, 47, 51, 55, 60, 65, 73, 80, 85, 89, 100, 103, 107, 109, 113, 115, 121, 130, 133, 140, 145, 151, 157, 163, 169, 173, 177, 180, 180}
 
 func (i token) String() string {
 	i -= 1

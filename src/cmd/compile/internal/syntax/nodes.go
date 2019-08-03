@@ -415,6 +415,19 @@ type (
 		Rbrace Pos
 		stmt
 	}
+
+	PairStmt struct {
+		Tag    Expr // incl. *TypeSwitchGuard
+		Body   []*PairClause
+		Rbrace Pos
+		stmt
+	}
+
+	PairClause struct {
+		Type *FuncType // TODO: currently this includes results
+		Body *BlockStmt
+		expr
+	}
 )
 
 type (

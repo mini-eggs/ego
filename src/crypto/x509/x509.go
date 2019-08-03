@@ -640,18 +640,18 @@ var extKeyUsageOIDs = []struct {
 }
 
 func extKeyUsageFromOID(oid asn1.ObjectIdentifier) (eku ExtKeyUsage, ok bool) {
-	for _, pair := range extKeyUsageOIDs {
-		if oid.Equal(pair.oid) {
-			return pair.extKeyUsage, true
+	for _, pairing := range extKeyUsageOIDs {
+		if oid.Equal(pairing.oid) {
+			return pairing.extKeyUsage, true
 		}
 	}
 	return
 }
 
 func oidFromExtKeyUsage(eku ExtKeyUsage) (oid asn1.ObjectIdentifier, ok bool) {
-	for _, pair := range extKeyUsageOIDs {
-		if eku == pair.extKeyUsage {
-			return pair.oid, true
+	for _, pairing := range extKeyUsageOIDs {
+		if eku == pairing.extKeyUsage {
+			return pairing.oid, true
 		}
 	}
 	return

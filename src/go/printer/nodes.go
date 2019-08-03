@@ -210,11 +210,11 @@ func (p *printer) exprList(prev0 token.Pos, list []ast.Expr, depth int, mode exp
 		prevSize := size
 		const infinity = 1e6 // larger than any source line
 		size = p.nodeSize(x, infinity)
-		pair, isPair := x.(*ast.KeyValueExpr)
+		pairing, isPair := x.(*ast.KeyValueExpr)
 		if size <= infinity && prev.IsValid() && next.IsValid() {
 			// x fits on a single line
 			if isPair {
-				size = p.nodeSize(pair.Key, infinity) // size <= infinity
+				size = p.nodeSize(pairing.Key, infinity) // size <= infinity
 			}
 		} else {
 			// size too large or we don't have good layout information
@@ -278,9 +278,9 @@ func (p *printer) exprList(prev0 token.Pos, list []ast.Expr, depth int, mode exp
 			// Use a column for the key such that consecutive entries
 			// can align if possible.
 			// (needsLinebreak is set if we started a new line before)
-			p.expr(pair.Key)
-			p.print(pair.Colon, token.COLON, vtab)
-			p.expr(pair.Value)
+			p.expr(pairing.Key)
+			p.print(pairing.Colon, token.COLON, vtab)
+			p.expr(pairing.Value)
 		} else {
 			p.expr0(x, depth)
 		}

@@ -1964,6 +1964,65 @@ func (p *parser) switchStmt() *SwitchStmt {
 	return s
 }
 
+func (p *parser) pairStmt() *PairStmt {
+	if trace {
+		defer p.trace("pairStmt")()
+	}
+
+	s := new(PairStmt)
+	s.pos = p.pos()
+
+	_, s.Tag, _ = p.header(_Pair)
+
+	// TODO: not correct for this case
+	// if !p.got(_Lbrace) {
+	// 	p.syntaxError("missing { after switch clause")
+	// 	p.advance(_Case, _Default, _Rbrace)
+	// }
+
+	fmt.Printf("what are these? \n%v\n", s.Tag)
+
+	// for p.tok != _EOF && p.tok != _Rbrace {
+	for e := 0; e < 2; e++ {
+		fmt.Printf("current token: %v\n", p.tok)
+		s.Body = append(s.Body, p.pairClause())
+	}
+
+	p.next()
+	fmt.Println("we made it here")
+
+	s.Rbrace = p.pos()
+	p.want(_Rbrace)
+
+	fmt.Println("but what about here?")
+
+	return s
+}
+
+func (p *parser) pairClause() *PairClause {
+	if trace {
+		defer p.trace("pairClause")()
+	}
+
+	pos := p.pos()
+	p.next()
+	t := p.funcType()
+
+	// if p.tok == _Lbrace {
+	p.xnest++
+
+	f := new(PairClause)
+	f.pos = pos
+	f.Type = t
+	fmt.Println("before")
+	f.Body = p.funcBody()
+	fmt.Println("after")
+
+	p.xnest--
+	return f
+	// }
+}
+
 func (p *parser) selectStmt() *SelectStmt {
 	if trace {
 		defer p.trace("selectStmt")()
@@ -2106,6 +2165,9 @@ func (p *parser) stmtOrNil() Stmt {
 
 	case _Select:
 		return p.selectStmt()
+
+	case _Pair:
+		return p.pairStmt()
 
 	case _If:
 		return p.ifStmt()
