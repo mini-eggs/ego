@@ -9,15 +9,13 @@ func t1() maybe int {
 }
 
 func main() {
-	{
-		tmp := t1()
-		if tmp.Err == nil {
-			val := tmp.Val
+	pair t1() {
+		(val int) {
+			// prints `value: 5`
 			fmt.Printf("value: %d\n", val)
-		} else {
-			e := tmp.Err
-			fmt.Println(e.Error())
+		}
+		(e error) {
+			// not reached in this example
 		}
 	}
 }
-

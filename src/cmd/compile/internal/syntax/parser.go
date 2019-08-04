@@ -1980,21 +1980,15 @@ func (p *parser) pairStmt() *PairStmt {
 	// 	p.advance(_Case, _Default, _Rbrace)
 	// }
 
-	fmt.Printf("what are these? \n%v\n", s.Tag)
-
 	// for p.tok != _EOF && p.tok != _Rbrace {
 	for e := 0; e < 2; e++ {
-		fmt.Printf("current token: %v\n", p.tok)
 		s.Body = append(s.Body, p.pairClause())
 	}
 
 	p.next()
-	fmt.Println("we made it here")
 
 	s.Rbrace = p.pos()
 	p.want(_Rbrace)
-
-	fmt.Println("but what about here?")
 
 	return s
 }
@@ -2014,9 +2008,7 @@ func (p *parser) pairClause() *PairClause {
 	f := new(PairClause)
 	f.pos = pos
 	f.Type = t
-	fmt.Println("before")
 	f.Body = p.funcBody()
-	fmt.Println("after")
 
 	p.xnest--
 	return f

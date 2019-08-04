@@ -1265,6 +1265,7 @@ func (p *noder) caseClauses(clauses []*syntax.CaseClause, tswitch *Node, rbrace 
 }
 
 func (p *noder) pairStmtTransform(stmt *syntax.PairStmt) *Node {
+	fmt.Printf("CURRENT: %v\n", stmt)
 	// TODO: transform into a declaration (of unused name)
 	// and if else
 	panic("TODO")
