@@ -814,6 +814,36 @@ func (p *noder) chanDir(dir syntax.ChanDir) types.ChanDir {
 	panic("unhandled ChanDir")
 }
 
+func (p *noder) pairToStructType(stmt *syntax.PairStmt) *syntax.StructType {
+	var l []*syntax.Field
+
+	// for `Err`
+	{
+		field := &syntax.Field{
+			Name: &syntax.Name{
+				Value: "Err",
+			},
+			Type: stmt.Body[1].Type.ParamList[0].Type,
+		}
+		l = append(l, field)
+	}
+
+	// for `Val`
+	{
+		field := &syntax.Field{
+			Name: &syntax.Name{
+				Value: "Val",
+			},
+			Type: stmt.Body[0].Type.ParamList[0].Type,
+		}
+		l = append(l, field)
+	}
+
+	return &syntax.StructType{
+		FieldList: l,
+	}
+}
+
 func (p *noder) maybeToStructType(expr *syntax.MaybeType) *Node {
 	var l []*Node
 
@@ -1265,10 +1295,88 @@ func (p *noder) caseClauses(clauses []*syntax.CaseClause, tswitch *Node, rbrace 
 }
 
 func (p *noder) pairStmtTransform(stmt *syntax.PairStmt) *Node {
-	fmt.Printf("CURRENT: %v\n", stmt)
-	// TODO: transform into a declaration (of unused name)
-	// and if else
-	panic("TODO")
+	p.openScope(stmt.Pos())
+	n := p.nod(stmt, OIF, nil, nil)
+
+	// tmp var creation
+	tmpVar := &syntax.Name{Value: "tmp"}
+	typ := p.pairToStructType(stmt)
+	list := p.varDecl(&syntax.VarDecl{NameList: []*syntax.Name{tmpVar}, Type: typ, Values: nil, Group: nil})
+
+	// assign
+	{
+		assignStmt := p.nod(stmt, OAS, nil, nil)
+
+		rhs := p.exprList(tmpVar)
+		lhs := p.assignList(stmt.Tag, assignStmt, false)
+
+		assignStmt.Left = rhs[0]
+		assignStmt.Right = lhs[0]
+
+		n.Ninit.Set1(assignStmt)
+	}
+
+	// condition
+	{
+		cond := &syntax.Operation{
+			Op: syntax.Eql,
+			X: &syntax.SelectorExpr{
+				X:   tmpVar,
+				Sel: &syntax.Name{Value: "Err"},
+			},
+			Y: &syntax.Name{Value: "nil"},
+		}
+
+		n.Left = p.expr(cond)
+	}
+
+	// happy path
+	{
+		// var dec
+		nam := stmt.Body[0].Type.ParamList[0].Name
+		typ := stmt.Body[0].Type.ParamList[0].Type
+		n.Nbody.Set(p.varDecl(&syntax.VarDecl{NameList: []*syntax.Name{nam}, Type: typ, Values: nil, Group: nil}))
+
+		// var assign
+		assignStmt := p.nod(stmt, OAS, nil, nil)
+		rhs := p.exprList(nam)
+		lhs := p.assignList(&syntax.SelectorExpr{X: tmpVar, Sel: &syntax.Name{Value: "Val"}}, assignStmt, false)
+		assignStmt.Left = rhs[0]
+		assignStmt.Right = lhs[0]
+		n.Nbody.Append(assignStmt)
+
+		// user code
+		for _, item := range p.blockStmt(stmt.Body[0].Body) {
+			n.Nbody.Append(item)
+		}
+	}
+
+	// error
+	{
+		// var dec
+		nam := stmt.Body[1].Type.ParamList[0].Name
+		typ := stmt.Body[1].Type.ParamList[0].Type
+		n.Rlist.Set(p.varDecl(&syntax.VarDecl{NameList: []*syntax.Name{nam}, Type: typ, Values: nil, Group: nil}))
+
+		// var assign
+		assignStmt := p.nod(stmt, OAS, nil, nil)
+		rhs := p.exprList(nam)
+		lhs := p.assignList(&syntax.SelectorExpr{X: tmpVar, Sel: &syntax.Name{Value: "Err"}}, assignStmt, false)
+		assignStmt.Left = rhs[0]
+		assignStmt.Right = lhs[0]
+		n.Rlist.Append(assignStmt)
+
+		// user code
+		for _, item := range p.blockStmt(stmt.Body[1].Body) {
+			n.Rlist.Append(item)
+		}
+	}
+
+	p.closeAnotherScope()
+
+	list = append(list, n)
+
+	return liststmt(list)
 }
 
 func (p *noder) selectStmt(stmt *syntax.SelectStmt) *Node {
