@@ -31,7 +31,7 @@ type T struct {
 	d *int
 }
 
-type pair struct {
+type pairing struct {
 	i interface{}
 	s string
 }
@@ -43,7 +43,7 @@ func assert(t *testing.T, s, want string) {
 	}
 }
 
-var typeTests = []pair{
+var typeTests = []pairing{
 	{struct{ x int }{}, "int"},
 	{struct{ x int8 }{}, "int8"},
 	{struct{ x int16 }{}, "int16"},
@@ -168,7 +168,7 @@ var typeTests = []pair{
 	},
 }
 
-var valueTests = []pair{
+var valueTests = []pairing{
 	{new(int), "132"},
 	{new(int8), "8"},
 	{new(int16), "16"},
@@ -365,7 +365,7 @@ func TestCanSetField(t *testing.T) {
 
 var _i = 7
 
-var valueToStringTests = []pair{
+var valueToStringTests = []pairing{
 	{123, "123"},
 	{123.5, "123.5"},
 	{byte(123), "123"},

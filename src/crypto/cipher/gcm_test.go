@@ -394,7 +394,7 @@ func wrap(b cipher.Block) cipher.Block {
 }
 
 func TestGCMAsm(t *testing.T) {
-	// Create a new pair of AEADs, one using the assembly implementation
+	// Create a new pairing of AEADs, one using the assembly implementation
 	// and one using the generic Go implementation.
 	newAESGCM := func(key []byte) (asm, generic cipher.AEAD, err error) {
 		block, err := aes.NewCipher(key[:])
@@ -423,7 +423,7 @@ func TestGCMAsm(t *testing.T) {
 	}
 
 	// generate permutations
-	type pair struct{ align, length int }
+	type pairing struct{ align, length int }
 	lengths := []int{0, 156, 8192, 8193, 8208}
 	keySizes := []int{16, 24, 32}
 	alignments := []int{0, 1, 2, 3}
@@ -431,13 +431,13 @@ func TestGCMAsm(t *testing.T) {
 		keySizes = []int{16}
 		alignments = []int{1}
 	}
-	perms := make([]pair, 0)
+	perms := make([]pairing, 0)
 	for _, l := range lengths {
 		for _, a := range alignments {
 			if a != 0 && l == 0 {
 				continue
 			}
-			perms = append(perms, pair{align: a, length: l})
+			perms = append(perms, pairing{align: a, length: l})
 		}
 	}
 

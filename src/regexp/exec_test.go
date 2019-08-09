@@ -50,7 +50,7 @@ import (
 // Each match result is either a single -, meaning no match, or a
 // space-separated sequence of pairs giving the match and
 // submatch indices. An unmatched subexpression formats
-// its pair as a single - (not illustrated above).  For now
+// its pairing as a single - (not illustrated above).  For now
 // each regexp run produces two match results, one for a
 // ``full match'' that restricts the regexp to matching the entire
 // string or nothing, and one for a ``partial match'' that gives
@@ -289,19 +289,19 @@ func parseResult(t *testing.T, file string, lineno int, res string) []int {
 	for j := 0; j <= len(res); j++ {
 		if j == len(res) || res[j] == ' ' {
 			// Process a single pair.  - means no submatch.
-			pair := res[i:j]
-			if pair == "-" {
+			pairing := res[i:j]
+			if pairing == "-" {
 				out[n] = -1
 				out[n+1] = -1
 			} else {
-				k := strings.Index(pair, "-")
+				k := strings.Index(pairing, "-")
 				if k < 0 {
-					t.Fatalf("%s:%d: invalid pair %s", file, lineno, pair)
+					t.Fatalf("%s:%d: invalid pairing %s", file, lineno, pairing)
 				}
-				lo, err1 := strconv.Atoi(pair[:k])
-				hi, err2 := strconv.Atoi(pair[k+1:])
+				lo, err1 := strconv.Atoi(pairing[:k])
+				hi, err2 := strconv.Atoi(pairing[k+1:])
 				if err1 != nil || err2 != nil || lo > hi {
-					t.Fatalf("%s:%d: invalid pair %s", file, lineno, pair)
+					t.Fatalf("%s:%d: invalid pairing %s", file, lineno, pairing)
 				}
 				out[n] = lo
 				out[n+1] = hi

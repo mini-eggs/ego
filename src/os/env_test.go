@@ -128,12 +128,12 @@ func TestClearenv(t *testing.T) {
 
 	// reset env
 	defer func(origEnv []string) {
-		for _, pair := range origEnv {
+		for _, pairing := range origEnv {
 			// Environment variables on Windows can begin with =
 			// https://blogs.msdn.com/b/oldnewthing/archive/2010/05/06/10008132.aspx
-			i := strings.Index(pair[1:], "=") + 1
-			if err := Setenv(pair[:i], pair[i+1:]); err != nil {
-				t.Errorf("Setenv(%q, %q) failed during reset: %v", pair[:i], pair[i+1:], err)
+			i := strings.Index(pairing[1:], "=") + 1
+			if err := Setenv(pairing[:i], pairing[i+1:]); err != nil {
+				t.Errorf("Setenv(%q, %q) failed during reset: %v", pairing[:i], pairing[i+1:], err)
 			}
 		}
 	}(Environ())

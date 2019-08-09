@@ -499,9 +499,9 @@ func TestDecodeWithPadding(t *testing.T) {
 	}
 
 	for i, enc := range encodings {
-		for _, pair := range pairs {
+		for _, pairing := range pairs {
 
-			input := pair.decoded
+			input := pairing.decoded
 			encoded := enc.EncodeToString([]byte(input))
 
 			decoded, err := enc.DecodeString(encoded)
@@ -693,9 +693,9 @@ func TestDecodeReadAll(t *testing.T) {
 		StdEncoding.WithPadding(NoPadding),
 	}
 
-	for _, pair := range pairs {
+	for _, pairing := range pairs {
 		for encIndex, encoding := range encodings {
-			encoded := pair.encoded
+			encoded := pairing.encoded
 			if encoding.padChar == NoPadding {
 				encoded = strings.ReplaceAll(encoded, "=", "")
 			}
@@ -705,8 +705,8 @@ func TestDecodeReadAll(t *testing.T) {
 				t.Errorf("NewDecoder error: %v", err)
 			}
 
-			if pair.decoded != string(decReader) {
-				t.Errorf("Expected %s got %s; Encoding %d", pair.decoded, decReader, encIndex)
+			if pairing.decoded != string(decReader) {
+				t.Errorf("Expected %s got %s; Encoding %d", pairing.decoded, decReader, encIndex)
 			}
 		}
 	}
@@ -719,9 +719,9 @@ func TestDecodeSmallBuffer(t *testing.T) {
 	}
 
 	for bufferSize := 1; bufferSize < 200; bufferSize++ {
-		for _, pair := range pairs {
+		for _, pairing := range pairs {
 			for encIndex, encoding := range encodings {
-				encoded := pair.encoded
+				encoded := pairing.encoded
 				if encoding.padChar == NoPadding {
 					encoded = strings.ReplaceAll(encoded, "=", "")
 				}
@@ -742,8 +742,8 @@ func TestDecodeSmallBuffer(t *testing.T) {
 					}
 				}
 
-				if pair.decoded != string(allRead) {
-					t.Errorf("Expected %s got %s; Encoding %d; bufferSize %d", pair.decoded, allRead, encIndex, bufferSize)
+				if pairing.decoded != string(allRead) {
+					t.Errorf("Expected %s got %s; Encoding %d; bufferSize %d", pairing.decoded, allRead, encIndex, bufferSize)
 				}
 			}
 		}

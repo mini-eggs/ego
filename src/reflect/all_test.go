@@ -43,7 +43,7 @@ type T struct {
 	d *int
 }
 
-type pair struct {
+type pairing struct {
 	i interface{}
 	s string
 }
@@ -54,7 +54,7 @@ func assert(t *testing.T, s, want string) {
 	}
 }
 
-var typeTests = []pair{
+var typeTests = []pairing{
 	{struct{ x int }{}, "int"},
 	{struct{ x int8 }{}, "int8"},
 	{struct{ x int16 }{}, "int16"},
@@ -179,7 +179,7 @@ var typeTests = []pair{
 	},
 }
 
-var valueTests = []pair{
+var valueTests = []pairing{
 	{new(int), "132"},
 	{new(int8), "8"},
 	{new(int16), "16"},
@@ -414,7 +414,7 @@ func TestCanSetField(t *testing.T) {
 
 var _i = 7
 
-var valueToStringTests = []pair{
+var valueToStringTests = []pairing{
 	{123, "123"},
 	{123.5, "123.5"},
 	{byte(123), "123"},
@@ -4054,7 +4054,7 @@ func TestConvert(t *testing.T) {
 
 	// Assume that of all the types we saw during the tests,
 	// if there wasn't an explicit entry for a conversion between
-	// a pair of types, then it's not to be allowed. This checks for
+	// a pairing of types, then it's not to be allowed. This checks for
 	// things like 'int64' converting to '*int'.
 	for t1 := range all {
 		for t2 := range all {
@@ -6643,7 +6643,7 @@ func BenchmarkNew(b *testing.B) {
 func TestSwapper(t *testing.T) {
 	type I int
 	var a, b, c I
-	type pair struct {
+	type pairing struct {
 		x, y int
 	}
 	type pairPtr struct {
@@ -6700,10 +6700,10 @@ func TestSwapper(t *testing.T) {
 			want: []S{"larry", "sergey", "eric"},
 		},
 		{
-			in:   []pair{{1, 2}, {3, 4}, {5, 6}},
+			in:   []pairing{{1, 2}, {3, 4}, {5, 6}},
 			i:    0,
 			j:    2,
-			want: []pair{{5, 6}, {3, 4}, {1, 2}},
+			want: []pairing{{5, 6}, {3, 4}, {1, 2}},
 		},
 		{
 			in:   []pairPtr{{1, 2, &a}, {3, 4, &b}, {5, 6, &c}},
