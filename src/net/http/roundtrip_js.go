@@ -117,8 +117,8 @@ func (t *Transport) RoundTrip(req *Request) (*Response, error) {
 			if n.Get("done").Bool() {
 				break
 			}
-			pair := n.Get("value")
-			key, value := pair.Index(0).String(), pair.Index(1).String()
+			pairing := n.Get("value")
+			key, value := pairing.Index(0).String(), pairing.Index(1).String()
 			ck := CanonicalHeaderKey(key)
 			header[ck] = append(header[ck], value)
 		}
