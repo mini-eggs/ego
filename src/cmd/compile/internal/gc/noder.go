@@ -1373,9 +1373,7 @@ func (p *noder) pairStmtTransform(stmt *syntax.PairStmt) *Node {
 	}
 
 	p.closeAnotherScope()
-
 	list = append(list, n)
-
 	return liststmt(list)
 }
 
