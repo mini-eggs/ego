@@ -18,7 +18,7 @@ func main() {
 
 var sink interface{}
 
-type pair struct {
+type pairing struct {
 	x, y *int
 }
 
@@ -26,7 +26,7 @@ type Pairy interface {
 	EqualParts() bool
 }
 
-func (p *pair) EqualParts() bool { // ERROR "\(\*pair\).EqualParts p does not escape$"
+func (p *pairing) EqualParts() bool { // ERROR "\(\*pairing\).EqualParts p does not escape$"
 	return p != nil && (p.x == p.y || *p.x == *p.y)
 }
 
@@ -36,9 +36,9 @@ func f1(p *int) { // ERROR "from \[3\]\*int literal \(array literal element\) at
 
 }
 
-func f2(q *int) { // ERROR "from &u \(address-of\) at escape_because.go:43$" "from &u \(interface-converted\) at escape_because.go:43$" "from pair literal \(struct literal element\) at escape_because.go:41$" "from s \(assigned\) at escape_because.go:40$" "from sink \(assigned to top level variable\) at escape_because.go:43$" "from t \(assigned\) at escape_because.go:41$" "from u \(assigned\) at escape_because.go:42$" "leaking param: q$"
+func f2(q *int) { // ERROR "from &u \(address-of\) at escape_because.go:43$" "from &u \(interface-converted\) at escape_because.go:43$" "from pairing literal \(struct literal element\) at escape_because.go:41$" "from s \(assigned\) at escape_because.go:40$" "from sink \(assigned to top level variable\) at escape_because.go:43$" "from t \(assigned\) at escape_because.go:41$" "from u \(assigned\) at escape_because.go:42$" "leaking param: q$"
 	s := q
-	t := pair{s, nil}
+	t := pairing{s, nil}
 	u := t    // ERROR "moved to heap: u$"
 	sink = &u // ERROR "&u escapes to heap$" "from sink \(assigned to top level variable\) at escape_because.go:43$"
 }
@@ -59,9 +59,9 @@ func f5(s1, s2 []*int) int { // ERROR "from \*s1 \(indirection\) at escape_becau
 }
 
 func f6(x, y *int) bool { // ERROR "f6 x does not escape$" "f6 y does not escape$"
-	p := pair{x, y}
+	p := pairing{x, y}
 	var P Pairy = &p // ERROR "f6 &p does not escape$"
-	pp := P.(*pair)
+	pp := P.(*pairing)
 	return pp.EqualParts()
 }
 

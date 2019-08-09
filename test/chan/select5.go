@@ -61,14 +61,14 @@ type arg struct {
 }
 
 func (a *arg) Maybe() bool {
-	return maybe()
+	return mabes()
 }
 
 func (a *arg) MaybeDefault() bool {
 	if a.def {
 		return false
 	}
-	a.def = maybe()
+	a.def = mabes()
 	return a.def
 }
 
@@ -420,11 +420,11 @@ var nonblock = parse("nonblock", `
 // some logic.  The logic should call choose(n) when
 // it wants to choose between n possibilities.
 // On successive runs through the logic, choose(n)
-// will return 0, 1, ..., n-1.  The helper maybe() is
+// will return 0, 1, ..., n-1.  The helper mabes() is
 // similar but returns true and then false.
 //
 // Given a function gen that generates an output
-// using choose and maybe, code can generate all
+// using choose and mabes, code can generate all
 // possible outputs using
 //
 //	for next() {
@@ -438,7 +438,7 @@ type choice struct {
 var choices []choice
 var cp int = -1
 
-func maybe() bool {
+func mabes() bool {
 	return choose(2) == 0
 }
 

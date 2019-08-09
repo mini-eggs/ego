@@ -904,9 +904,9 @@ var testPairs = []testPair{
 }
 
 func testHelpers(t *testing.T) {
-	for _, pair := range testPairs {
-		if !reflect.DeepEqual(pair.Got, pair.Want) {
-			t.Errorf("%s: got %#v, want %#v", pair.Name, pair.Got, pair.Want)
+	for _, pairing := range testPairs {
+		if !reflect.DeepEqual(pairing.Got, pairing.Want) {
+			t.Errorf("%s: got %#v, want %#v", pairing.Name, pairing.Got, pairing.Want)
 		}
 	}
 }

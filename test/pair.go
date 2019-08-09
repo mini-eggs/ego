@@ -12,7 +12,6 @@ import (
 	"errors"
 )
 
-
 func assert(cond bool, msg string) {
 	if !cond {
 		print("assertion fail: ", msg, "\n")
