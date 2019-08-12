@@ -963,6 +963,11 @@ func (p *printer) expr1(expr ast.Expr, prec1, depth int) {
 		p.print(blank)
 		p.expr(x.Value)
 
+	case *ast.MaybeType:
+		p.print(token.MAYBE)
+		p.print(blank)
+		p.expr(x.Value)
+
 	default:
 		panic("unreachable")
 	}
@@ -1050,6 +1055,12 @@ func (p *printer) block(b *ast.BlockStmt, nindent int) {
 	p.stmtList(b.List, nindent, true)
 	p.linebreak(p.lineFor(b.Rbrace), 1, ignore, true)
 	p.print(b.Rbrace, token.RBRACE)
+}
+
+// pairCase prints an *ast.PairClause; it always spans at least two lines.
+func (p *printer) pairCase(b *ast.PairClause, nindent int) {
+	p.signature(b.Type.Params, nil)
+	p.funcBody(p.distanceFrom(b.Pos()), vtab, b.Body)
 }
 
 func isTypeName(x ast.Expr) bool {
@@ -1287,6 +1298,17 @@ func (p *printer) stmt(stmt ast.Stmt, nextIsRBrace bool) {
 		p.print(token.SWITCH)
 		p.controlClause(false, s.Init, s.Tag, nil)
 		p.block(s.Body, 0)
+
+	case *ast.PairStmt:
+		p.print(token.PAIR)
+		p.controlClause(false, nil, s.Tag, nil)
+		p.print(token.LBRACE, indent)
+		p.print(newline)
+		for _, item := range s.Body {
+			p.pairCase(item, 0)
+			p.print(newline)
+		}
+		p.print(unindent, token.RBRACE)
 
 	case *ast.TypeSwitchStmt:
 		p.print(token.SWITCH)

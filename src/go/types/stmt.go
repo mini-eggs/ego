@@ -547,6 +547,32 @@ func (check *Checker) stmt(ctxt stmtContext, s ast.Stmt) {
 			check.closeScope()
 		}
 
+	case *ast.PairStmt:
+		inner |= breakOk
+		check.openScope(s, "pair")
+		defer check.closeScope()
+
+		var x operand
+		check.expr(&x, s.Tag)
+		check.assignment(&x, nil, "switch expression")
+
+		// TODO: make sure value-able case is first
+		// then always the error and only two.
+
+		if len(s.Body) != 2 {
+			check.errorf(s.Pos(), "must have exactly two pair clauses.")
+		}
+
+		for _, item := range s.Body {
+			check.openScope(item, "pair case")
+			// TODO:
+			// for _, param := range item.Type.Params.List {
+			// 	// append to item.Body
+			// }
+			// check.stmt(inner, item.Body)
+			check.closeScope()
+		}
+
 	case *ast.TypeSwitchStmt:
 		inner |= breakOk
 		check.openScope(s, "type switch")

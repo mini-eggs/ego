@@ -226,6 +226,10 @@ func writeType(buf *bytes.Buffer, typ Type, qf Qualifier, visited []Type) {
 			buf.WriteByte(')')
 		}
 
+	case *Maybe:
+		buf.WriteString("maybe ")
+		writeType(buf, t.elem, qf, visited)
+
 	case *Named:
 		s := "<Named w/o object>"
 		if obj := t.obj; obj != nil {

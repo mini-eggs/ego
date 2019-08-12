@@ -489,6 +489,7 @@ var stmtStart = map[token.Token]bool{
 	token.RETURN:      true,
 	token.SELECT:      true,
 	token.SWITCH:      true,
+	token.PAIR:        true,
 	token.TYPE:        true,
 	token.VAR:         true,
 }
@@ -1016,6 +1017,18 @@ func (p *parser) parseChanType() *ast.ChanType {
 	return &ast.ChanType{Begin: pos, Arrow: arrow, Dir: dir, Value: value}
 }
 
+func (p *parser) parseMaybeType() *ast.MaybeType {
+	if p.trace {
+		defer un(trace(p, "MaybeType"))
+	}
+
+	pos := p.pos
+	p.next()
+	value := p.parseType()
+
+	return &ast.MaybeType{Begin: pos, Value: value}
+}
+
 // If the result is an identifier, it is not resolved.
 func (p *parser) tryIdentOrType() ast.Expr {
 	switch p.tok {
@@ -1036,6 +1049,8 @@ func (p *parser) tryIdentOrType() ast.Expr {
 		return p.parseMapType()
 	case token.CHAN, token.ARROW:
 		return p.parseChanType()
+	case token.MAYBE:
+		return p.parseMaybeType()
 	case token.LPAREN:
 		lparen := p.pos
 		p.next()
@@ -2043,6 +2058,41 @@ func (p *parser) parseSwitchStmt() ast.Stmt {
 	return &ast.SwitchStmt{Switch: pos, Init: s1, Tag: p.makeExpr(s2, "switch expression"), Body: body}
 }
 
+func (p *parser) parsePairStmt() *ast.PairStmt {
+	if p.trace {
+		defer un(trace(p, "PairStmt"))
+	}
+
+	pos := p.expect(token.PAIR)
+	tag := p.parseExpr(false)
+	scope := ast.NewScope(p.topScope) // function scope
+
+	p.expect(token.LBRACE)
+
+	var clauseBodies []*ast.PairClause
+	for e := 0; e < 2; e++ {
+		params, results := p.parseSignature(scope)
+		body := p.parseBody(scope)
+		p.expectSemi()
+		clauseBodies = append(clauseBodies, &ast.PairClause{
+			Type: &ast.FuncType{
+				Func:    pos,
+				Params:  params,
+				Results: results,
+			},
+			Body: body,
+		})
+	}
+
+	p.expect(token.RBRACE)
+
+	return &ast.PairStmt{
+		Pair: pos,
+		Tag:  tag,
+		Body: clauseBodies,
+	}
+}
+
 func (p *parser) parseCommClause() *ast.CommClause {
 	if p.trace {
 		defer un(trace(p, "CommClause"))
@@ -2237,6 +2287,8 @@ func (p *parser) parseStmt() (s ast.Stmt) {
 		s = p.parseIfStmt()
 	case token.SWITCH:
 		s = p.parseSwitchStmt()
+	case token.PAIR:
+		s = p.parsePairStmt()
 	case token.SELECT:
 		s = p.parseSelectStmt()
 	case token.FOR:

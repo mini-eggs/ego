@@ -155,6 +155,7 @@ var tokens = [...]elt{
 	{token.BREAK, "break", keyword},
 	{token.CASE, "case", keyword},
 	{token.CHAN, "chan", keyword},
+	{token.MAYBE, "maybe", keyword},
 	{token.CONST, "const", keyword},
 	{token.CONTINUE, "continue", keyword},
 
@@ -179,6 +180,7 @@ var tokens = [...]elt{
 	{token.SELECT, "select", keyword},
 	{token.STRUCT, "struct", keyword},
 	{token.SWITCH, "switch", keyword},
+	{token.PAIR, "pair", keyword},
 	{token.TYPE, "type", keyword},
 	{token.VAR, "var", keyword},
 }

@@ -150,6 +150,14 @@ func (d *deadState) findLabels(stmt ast.Stmt) {
 		d.findLabels(x.Body)
 		d.breakTarget = outer
 
+	case *ast.PairStmt:
+		outer := d.breakTarget
+		d.breakTarget = x
+		for _, item := range x.Body {
+			d.findLabels(item.Body)
+		}
+		d.breakTarget = outer
+
 	case *ast.TypeSwitchStmt:
 		outer := d.breakTarget
 		d.breakTarget = x
@@ -294,6 +302,10 @@ func (d *deadState) findDead(stmt ast.Stmt) {
 			anyReachable = anyReachable || d.reachable
 		}
 		d.reachable = anyReachable || d.hasBreak[x] || !hasDefault
+
+	case *ast.PairStmt:
+		// TODO: complete
+		d.reachable = true
 
 	case *ast.TypeSwitchStmt:
 		anyReachable := false

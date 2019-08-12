@@ -98,6 +98,7 @@ const (
 	BREAK
 	CASE
 	CHAN
+	MAYBE
 	CONST
 	CONTINUE
 
@@ -122,6 +123,7 @@ const (
 	SELECT
 	STRUCT
 	SWITCH
+	PAIR
 	TYPE
 	VAR
 	keyword_end
@@ -199,6 +201,7 @@ var tokens = [...]string{
 	BREAK:    "break",
 	CASE:     "case",
 	CHAN:     "chan",
+	MAYBE:    "maybe",
 	CONST:    "const",
 	CONTINUE: "continue",
 
@@ -223,6 +226,7 @@ var tokens = [...]string{
 	SELECT: "select",
 	STRUCT: "struct",
 	SWITCH: "switch",
+	PAIR:   "pair",
 	TYPE:   "type",
 	VAR:    "var",
 }

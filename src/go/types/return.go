@@ -33,6 +33,14 @@ func (check *Checker) isTerminating(s ast.Stmt, label string) bool {
 			return true
 		}
 
+	case *ast.PairStmt:
+		for _, item := range s.Body {
+			if status := check.isTerminating(item.Body, label); !status {
+				return false
+			}
+		}
+		return true
+
 	case *ast.ReturnStmt:
 		return true
 

@@ -416,6 +416,12 @@ type (
 		Dir   ChanDir   // channel direction
 		Value Expr      // value type
 	}
+
+	// A MaybeType node represents a maybe type.
+	MaybeType struct {
+		Begin token.Pos // position of "maybe" keyword
+		Value Expr      // value type
+	}
 )
 
 // Pos and End implementations for expression/type nodes.
@@ -452,6 +458,7 @@ func (x *FuncType) Pos() token.Pos {
 func (x *InterfaceType) Pos() token.Pos { return x.Interface }
 func (x *MapType) Pos() token.Pos       { return x.Map }
 func (x *ChanType) Pos() token.Pos      { return x.Begin }
+func (x *MaybeType) Pos() token.Pos     { return x.Begin }
 
 func (x *BadExpr) End() token.Pos { return x.To }
 func (x *Ident) End() token.Pos   { return token.Pos(int(x.NamePos) + len(x.Name)) }
@@ -485,6 +492,7 @@ func (x *FuncType) End() token.Pos {
 func (x *InterfaceType) End() token.Pos { return x.Methods.End() }
 func (x *MapType) End() token.Pos       { return x.Value.End() }
 func (x *ChanType) End() token.Pos      { return x.Value.End() }
+func (x *MaybeType) End() token.Pos     { return x.Value.End() }
 
 // exprNode() ensures that only expression/type nodes can be
 // assigned to an Expr.
@@ -512,6 +520,7 @@ func (*FuncType) exprNode()      {}
 func (*InterfaceType) exprNode() {}
 func (*MapType) exprNode()       {}
 func (*ChanType) exprNode()      {}
+func (*MaybeType) exprNode()     {}
 
 // ----------------------------------------------------------------------------
 // Convenience functions for Idents
@@ -662,6 +671,18 @@ type (
 		Body   *BlockStmt // CaseClauses only
 	}
 
+	// A PairStmt node represents an expression pair statement.
+	PairStmt struct {
+		Pair token.Pos     // position of "pair" keyword
+		Tag  Expr          // tag expression; or nil
+		Body []*PairClause // PairClauses only
+	}
+
+	PairClause struct {
+		Type *FuncType // TODO: currently this includes results
+		Body *BlockStmt
+	}
+
 	// An TypeSwitchStmt node represents a type switch statement.
 	TypeSwitchStmt struct {
 		Switch token.Pos  // position of "switch" keyword
@@ -719,9 +740,11 @@ func (s *DeferStmt) Pos() token.Pos      { return s.Defer }
 func (s *ReturnStmt) Pos() token.Pos     { return s.Return }
 func (s *BranchStmt) Pos() token.Pos     { return s.TokPos }
 func (s *BlockStmt) Pos() token.Pos      { return s.Lbrace }
+func (s *PairClause) Pos() token.Pos     { return s.Type.Pos() }
 func (s *IfStmt) Pos() token.Pos         { return s.If }
 func (s *CaseClause) Pos() token.Pos     { return s.Case }
 func (s *SwitchStmt) Pos() token.Pos     { return s.Switch }
+func (s *PairStmt) Pos() token.Pos       { return s.Pair }
 func (s *TypeSwitchStmt) Pos() token.Pos { return s.Switch }
 func (s *CommClause) Pos() token.Pos     { return s.Case }
 func (s *SelectStmt) Pos() token.Pos     { return s.Select }
@@ -757,7 +780,8 @@ func (s *BranchStmt) End() token.Pos {
 	}
 	return token.Pos(int(s.TokPos) + len(s.Tok.String()))
 }
-func (s *BlockStmt) End() token.Pos { return s.Rbrace + 1 }
+func (s *BlockStmt) End() token.Pos  { return s.Rbrace + 1 }
+func (s *PairClause) End() token.Pos { return s.Body.End() }
 func (s *IfStmt) End() token.Pos {
 	if s.Else != nil {
 		return s.Else.End()
@@ -771,6 +795,7 @@ func (s *CaseClause) End() token.Pos {
 	return s.Colon + 1
 }
 func (s *SwitchStmt) End() token.Pos     { return s.Body.End() }
+func (s *PairStmt) End() token.Pos       { return s.Body[len(s.Body)-1].End() }
 func (s *TypeSwitchStmt) End() token.Pos { return s.Body.End() }
 func (s *CommClause) End() token.Pos {
 	if n := len(s.Body); n > 0 {
@@ -798,9 +823,11 @@ func (*DeferStmt) stmtNode()      {}
 func (*ReturnStmt) stmtNode()     {}
 func (*BranchStmt) stmtNode()     {}
 func (*BlockStmt) stmtNode()      {}
+func (*PairClause) stmtNode()     {}
 func (*IfStmt) stmtNode()         {}
 func (*CaseClause) stmtNode()     {}
 func (*SwitchStmt) stmtNode()     {}
+func (*PairStmt) stmtNode()       {}
 func (*TypeSwitchStmt) stmtNode() {}
 func (*CommClause) stmtNode()     {}
 func (*SelectStmt) stmtNode()     {}

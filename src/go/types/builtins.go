@@ -133,6 +133,13 @@ func (check *Checker) builtin(x *operand, call *ast.CallExpr, id builtinId) (_ b
 			check.recordBuiltinType(call.Fun, sig)
 		}
 
+	case _Ok, _Err:
+		// err(errors.New(...))
+		// ok(...)
+		// TODO: what do we do here?
+		x.mode = value
+		x.typ = &Maybe{elem: x.typ}
+
 	case _Cap, _Len:
 		// cap(x)
 		// len(x)

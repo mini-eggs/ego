@@ -397,6 +397,11 @@ type Chan struct {
 // A ChanDir value indicates a channel direction.
 type ChanDir int
 
+// A Maybe represents a maybe type.
+type Maybe struct {
+	elem Type
+}
+
 // The direction of a channel is indicated by one of these constants.
 const (
 	SendRecv ChanDir = iota
@@ -414,6 +419,9 @@ func (c *Chan) Dir() ChanDir { return c.dir }
 
 // Elem returns the element type of channel c.
 func (c *Chan) Elem() Type { return c.elem }
+
+// Elem returns the element type of maybe c.
+func (c *Maybe) Elem() Type { return c.elem }
 
 // A Named represents a named type.
 type Named struct {
@@ -475,6 +483,7 @@ func (s *Signature) Underlying() Type { return s }
 func (t *Interface) Underlying() Type { return t }
 func (m *Map) Underlying() Type       { return m }
 func (c *Chan) Underlying() Type      { return c }
+func (c *Maybe) Underlying() Type     { return c }
 func (t *Named) Underlying() Type     { return t.underlying }
 
 func (b *Basic) String() string     { return TypeString(b, nil) }
@@ -487,4 +496,5 @@ func (s *Signature) String() string { return TypeString(s, nil) }
 func (t *Interface) String() string { return TypeString(t, nil) }
 func (m *Map) String() string       { return TypeString(m, nil) }
 func (c *Chan) String() string      { return TypeString(c, nil) }
+func (c *Maybe) String() string     { return TypeString(c, nil) }
 func (t *Named) String() string     { return TypeString(t, nil) }

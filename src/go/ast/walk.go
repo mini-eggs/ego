@@ -178,6 +178,9 @@ func Walk(v Visitor, node Node) {
 	case *ChanType:
 		Walk(v, n.Value)
 
+	case *MaybeType:
+		Walk(v, n.Value)
+
 	// Statements
 	case *BadStmt:
 		// nothing to do
@@ -244,6 +247,16 @@ func Walk(v Visitor, node Node) {
 		if n.Tag != nil {
 			Walk(v, n.Tag)
 		}
+		Walk(v, n.Body)
+
+	case *PairStmt:
+		Walk(v, n.Tag)
+		for _, item := range n.Body { /* always two */
+			Walk(v, item)
+		}
+
+	case *PairClause:
+		Walk(v, n.Type)
 		Walk(v, n.Body)
 
 	case *TypeSwitchStmt:

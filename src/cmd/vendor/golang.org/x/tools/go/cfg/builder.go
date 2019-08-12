@@ -100,6 +100,9 @@ start:
 	case *ast.SwitchStmt:
 		b.switchStmt(s, label)
 
+	case *ast.PairStmt:
+		b.pairStmt(s, label)
+
 	case *ast.TypeSwitchStmt:
 		b.typeSwitchStmt(s, label)
 
@@ -237,6 +240,10 @@ func (b *builder) switchStmt(s *ast.SwitchStmt, label *lblock) {
 	}
 	b.jump(done)
 	b.current = done
+}
+
+func (b *builder) pairStmt(s *ast.PairStmt, label *lblock) {
+	// TODO: complete
 }
 
 func (b *builder) typeSwitchStmt(s *ast.TypeSwitchStmt, label *lblock) {

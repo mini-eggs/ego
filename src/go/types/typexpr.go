@@ -343,6 +343,12 @@ func (check *Checker) typInternal(e ast.Expr, def *Named) Type {
 		typ.elem = check.indirectType(e.Value)
 		return typ
 
+	case *ast.MaybeType:
+		typ := new(Maybe)
+		def.setUnderlying(typ)
+		typ.elem = check.indirectType(e.Value)
+		return typ
+
 	default:
 		check.errorf(e.Pos(), "%s is not a type", e)
 	}

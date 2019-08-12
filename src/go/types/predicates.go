@@ -6,7 +6,9 @@
 
 package types
 
-import "sort"
+import (
+	"sort"
+)
 
 func isNamed(typ Type) bool {
 	if _, ok := typ.(*Basic); ok {
@@ -277,6 +279,16 @@ func identical(x, y Type, cmpTags bool, p *ifacePair) bool {
 		// and the same direction.
 		if y, ok := y.(*Chan); ok {
 			return x.dir == y.dir && identical(x.elem, y.elem, cmpTags, p)
+		}
+
+	case *Maybe:
+		if y, ok := y.(*Maybe); ok {
+			x2 := Default(x.elem)
+			y2 := Default(y.elem)
+			if x2.String() == "error" /* is there a better way to do this? */ {
+				return true
+			}
+			return identical(x2, y2, false, nil)
 		}
 
 	case *Named:
