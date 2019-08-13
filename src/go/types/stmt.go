@@ -564,13 +564,15 @@ func (check *Checker) stmt(ctxt stmtContext, s ast.Stmt) {
 		}
 
 		for _, item := range s.Body {
-			check.openScope(item, "pair case")
-			// TODO:
-			// for _, param := range item.Type.Params.List {
-			// 	// append to item.Body
-			// }
-			// check.stmt(inner, item.Body)
-			check.closeScope()
+			obj := &Func{}
+			decl := &declInfo{}
+			sig := new(Signature)
+			obj.typ = sig // guard against cycles
+			check.funcType(sig, nil, item.Type)
+			if check.isTerminating(item.Body, "") {
+				sig.results = check.sig.results
+			}
+			check.funcBody(decl, obj.name, sig, item.Body, nil)
 		}
 
 	case *ast.TypeSwitchStmt:
