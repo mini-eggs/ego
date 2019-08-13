@@ -38,6 +38,10 @@ var builtinCalls = []struct {
 	{"len", `var c chan<-bool; _ = len(c)`, `func(chan<- bool) int`},
 	{"len", `var m map[string]float32; _ = len(m)`, `func(map[string]float32) int`},
 
+	// you have to be in function to use
+	{"ok", `_ = ok(1)`, `invalid type`},   // constant
+	{"err", `_ = err(0)`, `invalid type`}, // constant
+
 	{"close", `var c chan int; close(c)`, `func(chan int)`},
 	{"close", `var c chan<- chan string; close(c)`, `func(chan<- chan string)`},
 
