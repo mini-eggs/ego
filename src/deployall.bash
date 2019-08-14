@@ -82,6 +82,10 @@ do
 	fi
 done
 
+mkdir -p ../bin/linux_amd64
+mv ../bin/go ../bin/linux_amd64
+mv ../bin/gofmt ../bin/linux_amd64
+
 if [ "$failed" = "true" ]; then
 	echo "" 1>&2
 	echo "Build(s) failed." 1>&2
