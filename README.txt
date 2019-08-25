@@ -1,7 +1,7 @@
 ABOUT: 
 
 Ego stand for Evan's Go. My name is Evan. Hello! Ego is a (tiny) collection of
-exploritory Go extensions. Current additions include:
+exploratory Go extensions. Current additions include:
 
 1. Maybe type.
 2. builtin `ok` function.
